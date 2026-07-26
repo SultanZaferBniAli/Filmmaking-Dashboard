@@ -1,0 +1,73 @@
+{
+  "stagingId": "65cfc849-580e-4ef6-a81c-ee25e278d7ca",
+  "uploadedAt": "2026-07-16T11:41:02.214Z",
+  "batches": [
+    {
+      "entity": "participants",
+      "sourceLabel": "test-bad-participant.xlsx:البيانات",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "participant_id": "P-900",
+            "workshop_id": "WS-DOES-NOT-EXIST",
+            "full_name_arabic": "مشارك اختبار",
+            "full_name_en": null,
+            "gender": "male",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "1234567890",
+            "national_id_valid": true,
+            "phone": "+966501234567",
+            "phone_verified": true,
+            "email": "test900@example.com",
+            "city": "الرياض",
+            "region_code": "riyadh",
+            "date_of_birth": null,
+            "education_level": null,
+            "skill_level": null,
+            "experience_level": "none",
+            "track": null,
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": null,
+            "portfolio_url": null,
+            "evaluation_score": null,
+            "status": "applicant",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": null,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "error",
+          "changedFields": []
+        }
+      ],
+      "issues": [
+        {
+          "rowIndex": 0,
+          "field": "workshop_id",
+          "severity": "error",
+          "message": "workshop_id \"WS-DOES-NOT-EXIST\" does not reference an existing workshops record"
+        }
+      ],
+      "summary": {
+        "new": 0,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 0,
+        "errors": 1
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": []
+}

@@ -1,0 +1,151 @@
+{
+  "stagingId": "d4e9f2ae-9cb7-43b5-b3d3-2688d3260d08",
+  "uploadedAt": "2026-07-16T11:54:03.357Z",
+  "batches": [
+    {
+      "entity": "workshops",
+      "sourceLabel": "test-workshop.xlsx:البيانات",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "workshop_id": "WS-900",
+            "workshop_name": "ورشة اختبار الإدارة",
+            "workshop_type": "in-person",
+            "field": "الإخراج",
+            "year": 2026,
+            "region_code": "riyadh",
+            "region_name": "الرياض",
+            "city": "الرياض",
+            "location_type": "in-person",
+            "location_name": "مركز اختبار",
+            "location_link": null,
+            "start_date": "2026-08-01",
+            "end_date": "2026-08-02",
+            "start_time": "10:00",
+            "end_time": "14:00",
+            "language": "العربية",
+            "level": "مبتدئ",
+            "capacity": 20,
+            "trainer_id": "TR-001",
+            "status": "upcoming",
+            "description": null,
+            "themes": null,
+            "workshop_image": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "workshop_id": {
+              "before": null,
+              "after": "WS-900"
+            },
+            "workshop_name": {
+              "before": null,
+              "after": "ورشة اختبار الإدارة"
+            },
+            "workshop_type": {
+              "before": null,
+              "after": "in-person"
+            },
+            "field": {
+              "before": null,
+              "after": "الإخراج"
+            },
+            "year": {
+              "before": null,
+              "after": 2026
+            },
+            "region_code": {
+              "before": null,
+              "after": "riyadh"
+            },
+            "region_name": {
+              "before": null,
+              "after": "الرياض"
+            },
+            "city": {
+              "before": null,
+              "after": "الرياض"
+            },
+            "location_type": {
+              "before": null,
+              "after": "in-person"
+            },
+            "location_name": {
+              "before": null,
+              "after": "مركز اختبار"
+            },
+            "location_link": {
+              "before": null,
+              "after": null
+            },
+            "start_date": {
+              "before": null,
+              "after": "2026-08-01"
+            },
+            "end_date": {
+              "before": null,
+              "after": "2026-08-02"
+            },
+            "start_time": {
+              "before": null,
+              "after": "10:00"
+            },
+            "end_time": {
+              "before": null,
+              "after": "14:00"
+            },
+            "language": {
+              "before": null,
+              "after": "العربية"
+            },
+            "level": {
+              "before": null,
+              "after": "مبتدئ"
+            },
+            "capacity": {
+              "before": null,
+              "after": 20
+            },
+            "trainer_id": {
+              "before": null,
+              "after": "TR-001"
+            },
+            "status": {
+              "before": null,
+              "after": "upcoming"
+            },
+            "description": {
+              "before": null,
+              "after": null
+            },
+            "themes": {
+              "before": null,
+              "after": null
+            },
+            "workshop_image": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        }
+      ],
+      "issues": [],
+      "summary": {
+        "new": 1,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": []
+}

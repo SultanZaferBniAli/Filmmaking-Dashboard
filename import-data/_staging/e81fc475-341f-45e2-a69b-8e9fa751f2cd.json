@@ -1,0 +1,151 @@
+{
+  "stagingId": "e81fc475-341f-45e2-a69b-8e9fa751f2cd",
+  "uploadedAt": "2026-07-16T11:58:41.630Z",
+  "batches": [
+    {
+      "entity": "workshops",
+      "sourceLabel": "workshop-detail.xlsx:البيانات",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "workshop_id": "WS-107",
+            "workshop_name": "ورشة تصحيح الألوان",
+            "workshop_type": "specialized",
+            "field": "تصحيح الألوان",
+            "year": 2026,
+            "region_code": "qassim",
+            "region_name": "منطقة القصيم",
+            "city": "بريدة",
+            "location_type": "in-person",
+            "location_name": "مختبر الألوان الرقمي",
+            "location_link": null,
+            "start_date": "2026-12-01",
+            "end_date": "2026-12-03",
+            "start_time": "10:00",
+            "end_time": "14:00",
+            "language": "العربية",
+            "level": "متقدم",
+            "capacity": 12,
+            "trainer_id": "TR-006",
+            "status": "upcoming",
+            "description": "ورشة متخصصة في تصحيح الألوان والغرادينغ السينمائي وإدارة الألوان في مرحلة ما بعد الإنتاج.",
+            "themes": "أساسيات الغرادينغ؛ مطابقة اللقطات؛ بناء المزاج البصري باللون",
+            "workshop_image": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "workshop_name": {
+              "before": null,
+              "after": "ورشة تصحيح الألوان"
+            },
+            "workshop_type": {
+              "before": null,
+              "after": "specialized"
+            },
+            "field": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "year": {
+              "before": null,
+              "after": 2026
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "region_name": {
+              "before": null,
+              "after": "منطقة القصيم"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "location_type": {
+              "before": null,
+              "after": "in-person"
+            },
+            "location_name": {
+              "before": null,
+              "after": "مختبر الألوان الرقمي"
+            },
+            "location_link": {
+              "before": null,
+              "after": null
+            },
+            "start_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "end_date": {
+              "before": null,
+              "after": "2026-12-03"
+            },
+            "start_time": {
+              "before": null,
+              "after": "10:00"
+            },
+            "end_time": {
+              "before": null,
+              "after": "14:00"
+            },
+            "language": {
+              "before": null,
+              "after": "العربية"
+            },
+            "level": {
+              "before": null,
+              "after": "متقدم"
+            },
+            "capacity": {
+              "before": null,
+              "after": 12
+            },
+            "trainer_id": {
+              "before": null,
+              "after": "TR-006"
+            },
+            "status": {
+              "before": null,
+              "after": "upcoming"
+            },
+            "description": {
+              "before": null,
+              "after": "ورشة متخصصة في تصحيح الألوان والغرادينغ السينمائي وإدارة الألوان في مرحلة ما بعد الإنتاج."
+            },
+            "themes": {
+              "before": null,
+              "after": "أساسيات الغرادينغ؛ مطابقة اللقطات؛ بناء المزاج البصري باللون"
+            },
+            "workshop_image": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        }
+      ],
+      "issues": [],
+      "summary": {
+        "new": 1,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": []
+}

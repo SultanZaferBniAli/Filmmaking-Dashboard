@@ -1,0 +1,1353 @@
+{
+  "stagingId": "439f5bdc-1b4a-4974-be6b-a80e86929943",
+  "uploadedAt": "2026-07-16T12:01:43.949Z",
+  "batches": [
+    {
+      "entity": "trainers",
+      "sourceLabel": "workshop-data.xlsx:المدربون",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "trainer_id": "TR-001",
+            "name_ar": "أحمد حافظ",
+            "name_en": "Ahmed Hafez",
+            "nationality": "مصري",
+            "nationality_code": "EG",
+            "field": "محرر أفلام",
+            "years_experience": "أكثر من 25 عامًا",
+            "professional_membership": "عضو دولي مشارك في محرري السينما الأمريكية (ACE)",
+            "accounts": "IMDb، Wikipedia",
+            "bio": "محرر أفلام مصري معروف عالميًا وحائز على جوائز، ولديه خبرة في الأفلام الروائية والمسلسلات والإعلانات والفيديوهات الموسيقية.",
+            "notable_works": "Moon Knight (2022)؛ Cypher (2021)؛ العارف (2021)؛ الفيل الأزرق؛ تراب الماس؛ كيرة والجن",
+            "festival_recognition": "Clash، أميرة، شيخ جاكسون (البندقية، TIFF)",
+            "award": "جائزة الأوسكار المصرية 2024 عن «فوي! فوي! فوي!»",
+            "contact": "+966 55 395 8799",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "update",
+          "changedFields": [
+            "profile_image"
+          ],
+          "auditDiff": {
+            "profile_image": {
+              "before": "TR-001.png",
+              "after": null
+            }
+          }
+        },
+        {
+          "index": 1,
+          "data": {
+            "trainer_id": "TR-002",
+            "name_ar": "نورة عبدالله العتيبي",
+            "name_en": "Noura Abdullah Alotaibi",
+            "nationality": "سعودية",
+            "nationality_code": "SA",
+            "field": "الإخراج السينمائي",
+            "years_experience": "12 عامًا",
+            "professional_membership": "عضو في جمعية السينما السعودية",
+            "accounts": "IMDb، LinkedIn",
+            "bio": "مخرجة ومدربة سينمائية متخصصة في تطوير الرؤية الإخراجية وإدارة الممثلين وبناء المشهد.",
+            "notable_works": "ظلال المدينة؛ المشهد الأخير؛ نافذة",
+            "festival_recognition": "مشاركات في مهرجانات محلية وإقليمية",
+            "award": "جائزة أفضل فيلم قصير",
+            "contact": "+966 50 000 0002",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        },
+        {
+          "index": 2,
+          "data": {
+            "trainer_id": "TR-003",
+            "name_ar": "سامر خالد الخالدي",
+            "name_en": "Samer Khalid AlKhaldi",
+            "nationality": "أردني",
+            "nationality_code": "JO",
+            "field": "كتابة السيناريو",
+            "years_experience": "10 أعوام",
+            "professional_membership": "عضو في نقابة كتاب السيناريو",
+            "accounts": "LinkedIn، Vimeo",
+            "bio": "كاتب سيناريو ومدرب يركز على بناء الحبكة الدرامية وتطوير الشخصيات.",
+            "notable_works": "حكايات المدينة؛ خيوط الماضي",
+            "festival_recognition": "عروض في ملتقيات إبداعية",
+            "award": "جائزة الابتكار الإبداعي",
+            "contact": "+966 50 000 0003",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        },
+        {
+          "index": 3,
+          "data": {
+            "trainer_id": "TR-004",
+            "name_ar": "خالد فهد الشمري",
+            "name_en": "Khaled Fahad AlShammari",
+            "nationality": "سعودي",
+            "nationality_code": "SA",
+            "field": "التصوير السينمائي",
+            "years_experience": "14 عامًا",
+            "professional_membership": "عضو في جمعية مصوري السينما السعوديين",
+            "accounts": "IMDb، LinkedIn",
+            "bio": "مدير تصوير ومدرب متخصص في الإضاءة السينمائية وتكوين الصورة وحركة الكاميرا.",
+            "notable_works": "أفق؛ رمال؛ الطريق الطويل",
+            "festival_recognition": "مشاركات في مهرجانات إقليمية",
+            "award": "جائزة أفضل تصوير سينمائي",
+            "contact": "+966 50 000 0004",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        },
+        {
+          "index": 4,
+          "data": {
+            "trainer_id": "TR-005",
+            "name_ar": "ليان سعد المطيري",
+            "name_en": "Layan Saad AlMutairi",
+            "nationality": "سعودية",
+            "nationality_code": "SA",
+            "field": "تصميم الصوت",
+            "years_experience": "9 أعوام",
+            "professional_membership": "عضو في جمعية مهندسي الصوت",
+            "accounts": "LinkedIn، SoundCloud",
+            "bio": "مصممة صوت ومهندسة مكساج متخصصة في تصميم الصوت للأفلام الروائية والوثائقية.",
+            "notable_works": "صدى؛ همس المدينة؛ الليلة الأخيرة",
+            "festival_recognition": "عروض في مهرجانات محلية",
+            "award": "جائزة أفضل تصميم صوت",
+            "contact": "+966 50 000 0005",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        },
+        {
+          "index": 5,
+          "data": {
+            "trainer_id": "TR-006",
+            "name_ar": "ريان محمد الغامدي",
+            "name_en": "Rayan Mohammed AlGhamdi",
+            "nationality": "سعودي",
+            "nationality_code": "SA",
+            "field": "تصحيح الألوان",
+            "years_experience": "11 عامًا",
+            "professional_membership": "عضو في جمعية فناني ما بعد الإنتاج",
+            "accounts": "IMDb، LinkedIn",
+            "bio": "أخصائي تصحيح ألوان ومدرب متخصص في الغرادينغ السينمائي وإدارة الألوان.",
+            "notable_works": "لون المدينة؛ ظل؛ الأفق الأخير",
+            "festival_recognition": "مشاركات في مهرجانات إقليمية",
+            "award": "جائزة أفضل معالجة لونية",
+            "contact": "+966 50 000 0006",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        },
+        {
+          "index": 6,
+          "data": {
+            "trainer_id": "TR-007",
+            "name_ar": "دانة عبدالعزيز القحطاني",
+            "name_en": "justin bieber",
+            "nationality": "كندية",
+            "nationality_code": "CA",
+            "field": "المونتاج والرسوم المتحركة",
+            "years_experience": "8 أعوام",
+            "professional_membership": "عضو في جمعية فناني الرسوم المتحركة",
+            "accounts": "IMDb، LinkedIn، Behance",
+            "bio": "مصممة رسوم متحركة ومدربة متخصصة في الموشن غرافيك والرسوم ثنائية وثلاثية الأبعاد للأفلام والإعلانات.",
+            "notable_works": "أحلام ملونة؛ رحلة النور؛ المدينة الحالمة",
+            "festival_recognition": "مشاركات في مهرجانات محلية وإقليمية",
+            "award": "جائزة أفضل رسوم متحركة",
+            "contact": "+966 50 000 0007",
+            "profile_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        }
+      ],
+      "issues": [],
+      "summary": {
+        "new": 0,
+        "updated": 1,
+        "unchanged": 6,
+        "warnings": 0,
+        "errors": 0
+      },
+      "applied": false
+    },
+    {
+      "entity": "workshops",
+      "sourceLabel": "workshop-data.xlsx:الورشة",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "workshop_id": "WS-107",
+            "workshop_name": "ورشة تصحيح الألوان",
+            "workshop_type": "specialized",
+            "field": "تصحيح الألوان",
+            "year": 2026,
+            "region_code": "qassim",
+            "region_name": "منطقة القصيم",
+            "city": "بريدة",
+            "location_type": "in-person",
+            "location_name": "مختبر الألوان الرقمي",
+            "location_link": null,
+            "start_date": "2026-12-01",
+            "end_date": "2026-12-03",
+            "start_time": "10:00",
+            "end_time": "14:00",
+            "language": "العربية",
+            "level": "متقدم",
+            "capacity": 12,
+            "trainer_id": "TR-006",
+            "status": "upcoming",
+            "description": "ورشة متخصصة في تصحيح الألوان والغرادينغ السينمائي وإدارة الألوان في مرحلة ما بعد الإنتاج.",
+            "themes": "أساسيات الغرادينغ؛ مطابقة اللقطات؛ بناء المزاج البصري باللون",
+            "workshop_image": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "workshop_name": {
+              "before": null,
+              "after": "ورشة تصحيح الألوان"
+            },
+            "workshop_type": {
+              "before": null,
+              "after": "specialized"
+            },
+            "field": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "year": {
+              "before": null,
+              "after": 2026
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "region_name": {
+              "before": null,
+              "after": "منطقة القصيم"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "location_type": {
+              "before": null,
+              "after": "in-person"
+            },
+            "location_name": {
+              "before": null,
+              "after": "مختبر الألوان الرقمي"
+            },
+            "location_link": {
+              "before": null,
+              "after": null
+            },
+            "start_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "end_date": {
+              "before": null,
+              "after": "2026-12-03"
+            },
+            "start_time": {
+              "before": null,
+              "after": "10:00"
+            },
+            "end_time": {
+              "before": null,
+              "after": "14:00"
+            },
+            "language": {
+              "before": null,
+              "after": "العربية"
+            },
+            "level": {
+              "before": null,
+              "after": "متقدم"
+            },
+            "capacity": {
+              "before": null,
+              "after": 12
+            },
+            "trainer_id": {
+              "before": null,
+              "after": "TR-006"
+            },
+            "status": {
+              "before": null,
+              "after": "upcoming"
+            },
+            "description": {
+              "before": null,
+              "after": "ورشة متخصصة في تصحيح الألوان والغرادينغ السينمائي وإدارة الألوان في مرحلة ما بعد الإنتاج."
+            },
+            "themes": {
+              "before": null,
+              "after": "أساسيات الغرادينغ؛ مطابقة اللقطات؛ بناء المزاج البصري باللون"
+            },
+            "workshop_image": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        }
+      ],
+      "issues": [],
+      "summary": {
+        "new": 1,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 0,
+        "errors": 0
+      },
+      "applied": false
+    },
+    {
+      "entity": "participants",
+      "sourceLabel": "workshop-data.xlsx:المشاركون",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "participant_id": "P-107-001",
+            "workshop_id": "WS-107",
+            "full_name_arabic": "ماجد الحربي",
+            "full_name_en": null,
+            "gender": "male",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "21070000001",
+            "national_id_valid": false,
+            "phone": "+96651070000001",
+            "phone_verified": true,
+            "email": "participant.ws-107.001@example.com",
+            "city": "بريدة",
+            "region_code": "qassim",
+            "date_of_birth": "1997-01-15",
+            "education_level": "تعليم عالي (جامعة أو معهد)",
+            "skill_level": "advanced",
+            "experience_level": "3_to_5",
+            "track": "تصحيح الألوان",
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": "2026-12-01",
+            "portfolio_url": null,
+            "evaluation_score": 74,
+            "status": "accepted",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": 5,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "participant_id": {
+              "before": null,
+              "after": "P-107-001"
+            },
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "full_name_arabic": {
+              "before": null,
+              "after": "ماجد الحربي"
+            },
+            "full_name_en": {
+              "before": null,
+              "after": null
+            },
+            "gender": {
+              "before": null,
+              "after": "male"
+            },
+            "nationality": {
+              "before": null,
+              "after": "سعودي"
+            },
+            "nationality_class": {
+              "before": null,
+              "after": "SA"
+            },
+            "national_id": {
+              "before": null,
+              "after": "21070000001"
+            },
+            "national_id_valid": {
+              "before": null,
+              "after": false
+            },
+            "phone": {
+              "before": null,
+              "after": "+96651070000001"
+            },
+            "phone_verified": {
+              "before": null,
+              "after": true
+            },
+            "email": {
+              "before": null,
+              "after": "participant.ws-107.001@example.com"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "date_of_birth": {
+              "before": null,
+              "after": "1997-01-15"
+            },
+            "education_level": {
+              "before": null,
+              "after": "تعليم عالي (جامعة أو معهد)"
+            },
+            "skill_level": {
+              "before": null,
+              "after": "advanced"
+            },
+            "experience_level": {
+              "before": null,
+              "after": "3_to_5"
+            },
+            "track": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "current_role": {
+              "before": null,
+              "after": null
+            },
+            "has_editing_exp": {
+              "before": null,
+              "after": null
+            },
+            "editing_software": {
+              "before": null,
+              "after": null
+            },
+            "how_heard": {
+              "before": null,
+              "after": null
+            },
+            "application_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "portfolio_url": {
+              "before": null,
+              "after": null
+            },
+            "evaluation_score": {
+              "before": null,
+              "after": 74
+            },
+            "status": {
+              "before": null,
+              "after": "accepted"
+            },
+            "day_1": {
+              "before": null,
+              "after": null
+            },
+            "day_2": {
+              "before": null,
+              "after": null
+            },
+            "day_3": {
+              "before": null,
+              "after": null
+            },
+            "day_4": {
+              "before": null,
+              "after": null
+            },
+            "day_5": {
+              "before": null,
+              "after": null
+            },
+            "sessions_attended": {
+              "before": null,
+              "after": null
+            },
+            "total_sessions": {
+              "before": null,
+              "after": 5
+            },
+            "attendance_percentage": {
+              "before": null,
+              "after": null
+            },
+            "attendance_status": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        },
+        {
+          "index": 1,
+          "data": {
+            "participant_id": "P-107-002",
+            "workshop_id": "WS-107",
+            "full_name_arabic": "نورة العتيبي",
+            "full_name_en": null,
+            "gender": "female",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "21070000002",
+            "national_id_valid": false,
+            "phone": "+96651070000002",
+            "phone_verified": true,
+            "email": "participant.ws-107.002@example.com",
+            "city": "بريدة",
+            "region_code": "qassim",
+            "date_of_birth": "1998-02-15",
+            "education_level": "تعليم عالي (جامعة أو معهد)",
+            "skill_level": "advanced",
+            "experience_level": "3_to_5",
+            "track": "تصحيح الألوان",
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": "2026-12-01",
+            "portfolio_url": null,
+            "evaluation_score": 80,
+            "status": "accepted",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": 5,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "participant_id": {
+              "before": null,
+              "after": "P-107-002"
+            },
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "full_name_arabic": {
+              "before": null,
+              "after": "نورة العتيبي"
+            },
+            "full_name_en": {
+              "before": null,
+              "after": null
+            },
+            "gender": {
+              "before": null,
+              "after": "female"
+            },
+            "nationality": {
+              "before": null,
+              "after": "سعودي"
+            },
+            "nationality_class": {
+              "before": null,
+              "after": "SA"
+            },
+            "national_id": {
+              "before": null,
+              "after": "21070000002"
+            },
+            "national_id_valid": {
+              "before": null,
+              "after": false
+            },
+            "phone": {
+              "before": null,
+              "after": "+96651070000002"
+            },
+            "phone_verified": {
+              "before": null,
+              "after": true
+            },
+            "email": {
+              "before": null,
+              "after": "participant.ws-107.002@example.com"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "date_of_birth": {
+              "before": null,
+              "after": "1998-02-15"
+            },
+            "education_level": {
+              "before": null,
+              "after": "تعليم عالي (جامعة أو معهد)"
+            },
+            "skill_level": {
+              "before": null,
+              "after": "advanced"
+            },
+            "experience_level": {
+              "before": null,
+              "after": "3_to_5"
+            },
+            "track": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "current_role": {
+              "before": null,
+              "after": null
+            },
+            "has_editing_exp": {
+              "before": null,
+              "after": null
+            },
+            "editing_software": {
+              "before": null,
+              "after": null
+            },
+            "how_heard": {
+              "before": null,
+              "after": null
+            },
+            "application_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "portfolio_url": {
+              "before": null,
+              "after": null
+            },
+            "evaluation_score": {
+              "before": null,
+              "after": 80
+            },
+            "status": {
+              "before": null,
+              "after": "accepted"
+            },
+            "day_1": {
+              "before": null,
+              "after": null
+            },
+            "day_2": {
+              "before": null,
+              "after": null
+            },
+            "day_3": {
+              "before": null,
+              "after": null
+            },
+            "day_4": {
+              "before": null,
+              "after": null
+            },
+            "day_5": {
+              "before": null,
+              "after": null
+            },
+            "sessions_attended": {
+              "before": null,
+              "after": null
+            },
+            "total_sessions": {
+              "before": null,
+              "after": 5
+            },
+            "attendance_percentage": {
+              "before": null,
+              "after": null
+            },
+            "attendance_status": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        },
+        {
+          "index": 2,
+          "data": {
+            "participant_id": "P-107-003",
+            "workshop_id": "WS-107",
+            "full_name_arabic": "سعد الدوسري",
+            "full_name_en": null,
+            "gender": "male",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "21070000003",
+            "national_id_valid": false,
+            "phone": "+96651070000003",
+            "phone_verified": true,
+            "email": "participant.ws-107.003@example.com",
+            "city": "بريدة",
+            "region_code": "qassim",
+            "date_of_birth": "1999-03-15",
+            "education_level": "تعليم عالي (جامعة أو معهد)",
+            "skill_level": "advanced",
+            "experience_level": "3_to_5",
+            "track": "تصحيح الألوان",
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": "2026-12-01",
+            "portfolio_url": null,
+            "evaluation_score": 85,
+            "status": "accepted",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": 5,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "participant_id": {
+              "before": null,
+              "after": "P-107-003"
+            },
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "full_name_arabic": {
+              "before": null,
+              "after": "سعد الدوسري"
+            },
+            "full_name_en": {
+              "before": null,
+              "after": null
+            },
+            "gender": {
+              "before": null,
+              "after": "male"
+            },
+            "nationality": {
+              "before": null,
+              "after": "سعودي"
+            },
+            "nationality_class": {
+              "before": null,
+              "after": "SA"
+            },
+            "national_id": {
+              "before": null,
+              "after": "21070000003"
+            },
+            "national_id_valid": {
+              "before": null,
+              "after": false
+            },
+            "phone": {
+              "before": null,
+              "after": "+96651070000003"
+            },
+            "phone_verified": {
+              "before": null,
+              "after": true
+            },
+            "email": {
+              "before": null,
+              "after": "participant.ws-107.003@example.com"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "date_of_birth": {
+              "before": null,
+              "after": "1999-03-15"
+            },
+            "education_level": {
+              "before": null,
+              "after": "تعليم عالي (جامعة أو معهد)"
+            },
+            "skill_level": {
+              "before": null,
+              "after": "advanced"
+            },
+            "experience_level": {
+              "before": null,
+              "after": "3_to_5"
+            },
+            "track": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "current_role": {
+              "before": null,
+              "after": null
+            },
+            "has_editing_exp": {
+              "before": null,
+              "after": null
+            },
+            "editing_software": {
+              "before": null,
+              "after": null
+            },
+            "how_heard": {
+              "before": null,
+              "after": null
+            },
+            "application_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "portfolio_url": {
+              "before": null,
+              "after": null
+            },
+            "evaluation_score": {
+              "before": null,
+              "after": 85
+            },
+            "status": {
+              "before": null,
+              "after": "accepted"
+            },
+            "day_1": {
+              "before": null,
+              "after": null
+            },
+            "day_2": {
+              "before": null,
+              "after": null
+            },
+            "day_3": {
+              "before": null,
+              "after": null
+            },
+            "day_4": {
+              "before": null,
+              "after": null
+            },
+            "day_5": {
+              "before": null,
+              "after": null
+            },
+            "sessions_attended": {
+              "before": null,
+              "after": null
+            },
+            "total_sessions": {
+              "before": null,
+              "after": 5
+            },
+            "attendance_percentage": {
+              "before": null,
+              "after": null
+            },
+            "attendance_status": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        },
+        {
+          "index": 3,
+          "data": {
+            "participant_id": "P-107-004",
+            "workshop_id": "WS-107",
+            "full_name_arabic": "جنى القحطاني",
+            "full_name_en": null,
+            "gender": "female",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "21070000004",
+            "national_id_valid": false,
+            "phone": "+96651070000004",
+            "phone_verified": true,
+            "email": "participant.ws-107.004@example.com",
+            "city": "بريدة",
+            "region_code": "qassim",
+            "date_of_birth": "1997-04-15",
+            "education_level": "تعليم عالي (جامعة أو معهد)",
+            "skill_level": "advanced",
+            "experience_level": "3_to_5",
+            "track": "تصحيح الألوان",
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": "2026-12-01",
+            "portfolio_url": null,
+            "evaluation_score": 89,
+            "status": "applicant",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": 5,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "participant_id": {
+              "before": null,
+              "after": "P-107-004"
+            },
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "full_name_arabic": {
+              "before": null,
+              "after": "جنى القحطاني"
+            },
+            "full_name_en": {
+              "before": null,
+              "after": null
+            },
+            "gender": {
+              "before": null,
+              "after": "female"
+            },
+            "nationality": {
+              "before": null,
+              "after": "سعودي"
+            },
+            "nationality_class": {
+              "before": null,
+              "after": "SA"
+            },
+            "national_id": {
+              "before": null,
+              "after": "21070000004"
+            },
+            "national_id_valid": {
+              "before": null,
+              "after": false
+            },
+            "phone": {
+              "before": null,
+              "after": "+96651070000004"
+            },
+            "phone_verified": {
+              "before": null,
+              "after": true
+            },
+            "email": {
+              "before": null,
+              "after": "participant.ws-107.004@example.com"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "date_of_birth": {
+              "before": null,
+              "after": "1997-04-15"
+            },
+            "education_level": {
+              "before": null,
+              "after": "تعليم عالي (جامعة أو معهد)"
+            },
+            "skill_level": {
+              "before": null,
+              "after": "advanced"
+            },
+            "experience_level": {
+              "before": null,
+              "after": "3_to_5"
+            },
+            "track": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "current_role": {
+              "before": null,
+              "after": null
+            },
+            "has_editing_exp": {
+              "before": null,
+              "after": null
+            },
+            "editing_software": {
+              "before": null,
+              "after": null
+            },
+            "how_heard": {
+              "before": null,
+              "after": null
+            },
+            "application_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "portfolio_url": {
+              "before": null,
+              "after": null
+            },
+            "evaluation_score": {
+              "before": null,
+              "after": 89
+            },
+            "status": {
+              "before": null,
+              "after": "applicant"
+            },
+            "day_1": {
+              "before": null,
+              "after": null
+            },
+            "day_2": {
+              "before": null,
+              "after": null
+            },
+            "day_3": {
+              "before": null,
+              "after": null
+            },
+            "day_4": {
+              "before": null,
+              "after": null
+            },
+            "day_5": {
+              "before": null,
+              "after": null
+            },
+            "sessions_attended": {
+              "before": null,
+              "after": null
+            },
+            "total_sessions": {
+              "before": null,
+              "after": 5
+            },
+            "attendance_percentage": {
+              "before": null,
+              "after": null
+            },
+            "attendance_status": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        },
+        {
+          "index": 4,
+          "data": {
+            "participant_id": "P-107-005",
+            "workshop_id": "WS-107",
+            "full_name_arabic": "وليد المطيري",
+            "full_name_en": null,
+            "gender": "male",
+            "nationality": "سعودي",
+            "nationality_class": "SA",
+            "national_id": "21070000005",
+            "national_id_valid": false,
+            "phone": "+96651070000005",
+            "phone_verified": true,
+            "email": "participant.ws-107.005@example.com",
+            "city": "بريدة",
+            "region_code": "qassim",
+            "date_of_birth": "1998-05-15",
+            "education_level": "تعليم عالي (جامعة أو معهد)",
+            "skill_level": "advanced",
+            "experience_level": "3_to_5",
+            "track": "تصحيح الألوان",
+            "current_role": null,
+            "has_editing_exp": null,
+            "editing_software": null,
+            "how_heard": null,
+            "application_date": "2026-12-01",
+            "portfolio_url": null,
+            "evaluation_score": 92,
+            "status": "waitlist",
+            "day_1": null,
+            "day_2": null,
+            "day_3": null,
+            "day_4": null,
+            "day_5": null,
+            "sessions_attended": null,
+            "total_sessions": 5,
+            "attendance_percentage": null,
+            "attendance_status": null,
+            "deleted_at": null
+          },
+          "kind": "insert",
+          "changedFields": [],
+          "auditDiff": {
+            "participant_id": {
+              "before": null,
+              "after": "P-107-005"
+            },
+            "workshop_id": {
+              "before": null,
+              "after": "WS-107"
+            },
+            "full_name_arabic": {
+              "before": null,
+              "after": "وليد المطيري"
+            },
+            "full_name_en": {
+              "before": null,
+              "after": null
+            },
+            "gender": {
+              "before": null,
+              "after": "male"
+            },
+            "nationality": {
+              "before": null,
+              "after": "سعودي"
+            },
+            "nationality_class": {
+              "before": null,
+              "after": "SA"
+            },
+            "national_id": {
+              "before": null,
+              "after": "21070000005"
+            },
+            "national_id_valid": {
+              "before": null,
+              "after": false
+            },
+            "phone": {
+              "before": null,
+              "after": "+96651070000005"
+            },
+            "phone_verified": {
+              "before": null,
+              "after": true
+            },
+            "email": {
+              "before": null,
+              "after": "participant.ws-107.005@example.com"
+            },
+            "city": {
+              "before": null,
+              "after": "بريدة"
+            },
+            "region_code": {
+              "before": null,
+              "after": "qassim"
+            },
+            "date_of_birth": {
+              "before": null,
+              "after": "1998-05-15"
+            },
+            "education_level": {
+              "before": null,
+              "after": "تعليم عالي (جامعة أو معهد)"
+            },
+            "skill_level": {
+              "before": null,
+              "after": "advanced"
+            },
+            "experience_level": {
+              "before": null,
+              "after": "3_to_5"
+            },
+            "track": {
+              "before": null,
+              "after": "تصحيح الألوان"
+            },
+            "current_role": {
+              "before": null,
+              "after": null
+            },
+            "has_editing_exp": {
+              "before": null,
+              "after": null
+            },
+            "editing_software": {
+              "before": null,
+              "after": null
+            },
+            "how_heard": {
+              "before": null,
+              "after": null
+            },
+            "application_date": {
+              "before": null,
+              "after": "2026-12-01"
+            },
+            "portfolio_url": {
+              "before": null,
+              "after": null
+            },
+            "evaluation_score": {
+              "before": null,
+              "after": 92
+            },
+            "status": {
+              "before": null,
+              "after": "waitlist"
+            },
+            "day_1": {
+              "before": null,
+              "after": null
+            },
+            "day_2": {
+              "before": null,
+              "after": null
+            },
+            "day_3": {
+              "before": null,
+              "after": null
+            },
+            "day_4": {
+              "before": null,
+              "after": null
+            },
+            "day_5": {
+              "before": null,
+              "after": null
+            },
+            "sessions_attended": {
+              "before": null,
+              "after": null
+            },
+            "total_sessions": {
+              "before": null,
+              "after": 5
+            },
+            "attendance_percentage": {
+              "before": null,
+              "after": null
+            },
+            "attendance_status": {
+              "before": null,
+              "after": null
+            },
+            "deleted_at": {
+              "before": null,
+              "after": null
+            }
+          }
+        }
+      ],
+      "issues": [
+        {
+          "rowIndex": 0,
+          "field": null,
+          "severity": "warning",
+          "message": "national_id \"21070000001\" does not match the expected 10-digit Saudi format."
+        },
+        {
+          "rowIndex": 1,
+          "field": null,
+          "severity": "warning",
+          "message": "national_id \"21070000002\" does not match the expected 10-digit Saudi format."
+        },
+        {
+          "rowIndex": 2,
+          "field": null,
+          "severity": "warning",
+          "message": "national_id \"21070000003\" does not match the expected 10-digit Saudi format."
+        },
+        {
+          "rowIndex": 3,
+          "field": null,
+          "severity": "warning",
+          "message": "national_id \"21070000004\" does not match the expected 10-digit Saudi format."
+        },
+        {
+          "rowIndex": 4,
+          "field": null,
+          "severity": "warning",
+          "message": "national_id \"21070000005\" does not match the expected 10-digit Saudi format."
+        }
+      ],
+      "summary": {
+        "new": 5,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 5,
+        "errors": 0
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": [
+    "\"workshop-data.xlsx\" sheet \"دليل أعمدة المدربين\": could not detect which entity this belongs to (checked sheet name and column headers) — skipped."
+  ]
+}

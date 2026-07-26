@@ -1,0 +1,53 @@
+{
+  "stagingId": "95951f8c-1a88-4ebd-9c45-349235b6728e",
+  "uploadedAt": "2026-07-16T11:40:31.453Z",
+  "batches": [
+    {
+      "entity": "workshops",
+      "sourceLabel": "test-workshop.xlsx:البيانات",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "workshop_id": "WS-900",
+            "workshop_name": "ورشة اختبار الإدارة",
+            "workshop_type": "in-person",
+            "field": "الإخراج",
+            "year": 2026,
+            "region_code": "riyadh",
+            "region_name": "الرياض",
+            "city": "الرياض",
+            "location_type": "in-person",
+            "location_name": "مركز اختبار",
+            "location_link": null,
+            "start_date": "2026-08-01",
+            "end_date": "2026-08-02",
+            "start_time": "10:00",
+            "end_time": "14:00",
+            "language": "العربية",
+            "level": "مبتدئ",
+            "capacity": 20,
+            "trainer_id": "TR-001",
+            "status": "upcoming",
+            "description": null,
+            "themes": null,
+            "workshop_image": null,
+            "deleted_at": null
+          },
+          "kind": "skip",
+          "changedFields": []
+        }
+      ],
+      "issues": [],
+      "summary": {
+        "new": 0,
+        "updated": 0,
+        "unchanged": 1,
+        "warnings": 0,
+        "errors": 0
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": []
+}

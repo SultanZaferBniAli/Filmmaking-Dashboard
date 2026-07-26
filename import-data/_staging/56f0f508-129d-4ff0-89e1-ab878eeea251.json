@@ -1,0 +1,83 @@
+{
+  "stagingId": "56f0f508-129d-4ff0-89e1-ab878eeea251",
+  "uploadedAt": "2026-07-16T12:36:16.636Z",
+  "batches": [
+    {
+      "entity": "feedback",
+      "sourceLabel": "feedback-export.xlsx:البيانات",
+      "rows": [
+        {
+          "index": 0,
+          "data": {
+            "feedback_id": "FB-mrnhtbi3-h1tz",
+            "workshop_id": null,
+            "participant_id": null,
+            "q1": "ممتاز",
+            "q2": "ممتاز",
+            "q3": "محايد",
+            "q4": "ممتاز",
+            "q5": "ممتاز",
+            "q6": "ممتاز",
+            "q7": "ممتاز",
+            "q8": "ممتاز",
+            "overall_rating": 5,
+            "recommend_nps": 10,
+            "reason": "تجربة رائعة",
+            "suggestions": null,
+            "response_status": "completed",
+            "deleted_at": null
+          },
+          "kind": "error",
+          "changedFields": []
+        },
+        {
+          "index": 1,
+          "data": {
+            "feedback_id": "FB-mrnhtbi3-ypot",
+            "workshop_id": null,
+            "participant_id": null,
+            "q1": "ممتاز",
+            "q2": "محايد",
+            "q3": "ممتاز",
+            "q4": "ممتاز",
+            "q5": "ضعيف",
+            "q6": "ممتاز",
+            "q7": "ممتاز",
+            "q8": "ممتاز",
+            "overall_rating": 4,
+            "recommend_nps": 8,
+            "reason": "جيدة",
+            "suggestions": null,
+            "response_status": "completed",
+            "deleted_at": null
+          },
+          "kind": "error",
+          "changedFields": []
+        }
+      ],
+      "issues": [
+        {
+          "rowIndex": 0,
+          "field": "workshop_id",
+          "severity": "error",
+          "message": "Invalid input: expected string, received null"
+        },
+        {
+          "rowIndex": 1,
+          "field": "workshop_id",
+          "severity": "error",
+          "message": "Invalid input: expected string, received null"
+        }
+      ],
+      "summary": {
+        "new": 0,
+        "updated": 0,
+        "unchanged": 0,
+        "warnings": 0,
+        "errors": 2
+      },
+      "applied": false
+    }
+  ],
+  "parseWarnings": []
+}

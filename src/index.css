@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/*
+  Effra font files (licensed font, not bundled in the repo). Regular (400) is live via
+  public/fonts/Effra-Regular.ttf. Drop matching .woff2 or .ttf files into /public/fonts/
+  for the remaining weights and they're picked up automatically — no code changes needed:
+    Effra-Light.woff2|ttf      (300)
+    Effra-Medium.woff2|ttf     (500)
+    Effra-SemiBold.woff2|ttf   (600)
+    Effra-Bold.woff2|ttf       (700)
+    Effra-ExtraBold.woff2|ttf  (800)
+  Missing weights fall back to Cairo (loaded from Google Fonts in index.html).
+*/
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-Light.woff2') format('woff2'),
+    url('/fonts/Effra-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-Regular.woff2') format('woff2'),
+    url('/fonts/Effra-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-Medium.woff2') format('woff2'),
+    url('/fonts/Effra-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-SemiBold.woff2') format('woff2'),
+    url('/fonts/Effra-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-Bold.woff2') format('woff2'),
+    url('/fonts/Effra-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Effra';
+  src:
+    url('/fonts/Effra-ExtraBold.woff2') format('woff2'),
+    url('/fonts/Effra-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Effra', 'Cairo', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-bg: #06131c;
+  --color-surface: rgba(11, 31, 43, 0.9);
+  --color-surface-soft: rgba(255, 255, 255, 0.04);
+  --color-border: #1a3547;
+  --color-border-soft: rgba(255, 255, 255, 0.05);
+
+  --color-main-text: #f7fafc;
+  --color-title-text: #eef6fb;
+  --color-muted: #7a7d8a;
+  --color-muted-blue: #7ca8c0;
+  --color-subtle-blue: #a8c4d4;
+  --color-body-text: #c8dde9;
+  --color-off-white: #e8e6e0;
+
+  --color-peach: #fac39b;
+  --color-teal: #91b9b4;
+  --color-burgundy: #6e1946;
+  --color-mauve: #925274;
+  --color-orange: #ff9619;
+  --color-deep-red: #b41932;
+  --color-coral-red: #eb5a3c;
+  --color-makkah-red: #b03f2b;
+  --color-asir-navy: #0e2c56;
+  --color-gold: #c9a84c;
+  --color-avatar-orange: #f97316;
+  --color-notif-red: #ef4444;
+  --color-male: #4fbaf0;
+  --color-female: #f2789f;
+
+  --color-status-total: #334155;
+  --color-status-total-glow: #64748b;
+  --color-status-scheduled: #f97316;
+  --color-status-ongoing: #0d9488;
+  --color-status-ongoing-glow: #14b8a6;
+  --color-status-completed: #059669;
+  --color-status-completed-glow: #10b981;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-main-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Brief "pop" cue for icon-swap confirmations (e.g. copy-to-clipboard success checkmarks). */
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
