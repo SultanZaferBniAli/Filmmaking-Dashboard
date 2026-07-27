@@ -39,6 +39,14 @@ function matchAccount(username: string, password: string): Role | null {
   return null;
 }
 
+// Locally, the frontend (localhost:5173) and backend (localhost:4000) are "same-site" (same
+// registrable domain, different port), so `Lax` is sent on cross-origin fetches just fine. In
+// production the frontend and backend live on genuinely different domains (e.g. a Vercel host
+// and a Railway host) — that's cross-site, and `Lax` cookies are never sent on cross-site
+// fetch/XHR at all, silently breaking every authenticated request. `None` requires `Secure`,
+// which is exactly when `COOKIE_SECURE` is true, so the two flags stay in lockstep.
+const COOKIE_SAME_SITE = COOKIE_SECURE ? 'none' : 'lax';
+
 export function registerAuthRoutes(app: FastifyInstance) {
   app.post('/auth/login', async (req, reply) => {
     const parsed = loginSchema.safeParse(req.body);
@@ -49,7 +57,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
 
     reply.setCookie('session', signSession(role), {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: COOKIE_SAME_SITE,
       secure: COOKIE_SECURE,
       path: '/',
       maxAge: durationToSeconds(JWT_EXPIRES_IN),
@@ -58,7 +66,7 @@ export function registerAuthRoutes(app: FastifyInstance) {
   });
 
   app.post('/auth/logout', async (_req, reply) => {
-    reply.clearCookie('session', { path: '/' });
+    reply.clearCookie('session', { path: '/', sameSite: COOKIE_SAME_SITE, secure: COOKIE_SECURE });
     reply.code(204);
   });
 
