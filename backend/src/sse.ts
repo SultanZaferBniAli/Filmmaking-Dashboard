@@ -23,8 +23,12 @@ export function registerSseRoute(app: FastifyInstance) {
     const headers = {
       ...reply.getHeaders(),
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      // `no-transform` is the specific directive that stops Cloudflare's edge (and similar
+      // CDNs/proxies) from buffering or re-encoding the response before forwarding it — without
+      // it, a tunneled SSE connection can sit silently un-flushed instead of streaming live.
+      'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     } as OutgoingHttpHeaders;
     reply.raw.writeHead(200, headers);
     reply.raw.write(': connected\n\n');
