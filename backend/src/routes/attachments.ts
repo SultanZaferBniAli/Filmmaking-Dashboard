@@ -5,11 +5,12 @@ import { entities } from '../entities/index.js';
 import { findRowById } from '../store.js';
 import { DATA_DIR, MAX_UPLOAD_BYTES } from '../config.js';
 import { ApiError } from '../errors.js';
+import { requireAdmin } from '../auth.js';
 
 const ALLOWED_EXTENSIONS = new Set(['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']);
 
 export function registerAttachmentRoutes(app: FastifyInstance) {
-  app.post('/:entityName/:id/attachments', async (req) => {
+  app.post('/:entityName/:id/attachments', { preHandler: requireAdmin }, async (req) => {
     const { entityName, id } = req.params as { entityName: string; id: string };
     const entity = entities[entityName];
     if (!entity) throw new ApiError(404, 'NOT_FOUND', `Unknown entity "${entityName}"`);

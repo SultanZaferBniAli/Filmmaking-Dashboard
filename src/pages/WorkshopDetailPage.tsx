@@ -14,6 +14,7 @@ import { downloadAllCertificatesZip } from '../utils/exportCertificate';
 import { previewParticipantGuidePdf } from '../utils/exportParticipantGuidePdf';
 import { downloadWorkshopReportPptx, ReportGenerationError } from '../utils/exportReportPptx';
 import { useNotifications } from '../state/NotificationsContext';
+import { useAuth } from '../state/AuthContext';
 import { API_URL } from '../data/api';
 import { resolveFileUrl } from '../utils/resolveFileUrl';
 
@@ -105,6 +106,7 @@ type Props = {
 
 export default function WorkshopDetailPage({ workshop, onBack, onUpdateWorkshop, onNavigateToTrainer }: Props) {
   const { addNotification } = useNotifications();
+  const { isAdmin } = useAuth();
   const [tab, setTab] = useState<DetailTabKey>('overview');
   const [generatingReport, setGeneratingReport] = useState(false);
   const phase = getWorkshopPhase(workshop);
@@ -153,24 +155,28 @@ export default function WorkshopDetailPage({ workshop, onBack, onUpdateWorkshop,
               <Award size={16} />
               إصدار الشهادات
             </button>
-            <button
-              type="button"
-              onClick={handleDownloadReport}
-              disabled={generatingReport}
-              className="flex items-center gap-2 rounded-[10px] border border-border px-4 py-2 text-sm font-medium text-main-text disabled:opacity-60"
-            >
-              <FileText size={16} />
-              {generatingReport ? 'جارٍ إنشاء التقرير...' : 'إنشاء التقرير'}
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                disabled={generatingReport}
+                className="flex items-center gap-2 rounded-[10px] border border-border px-4 py-2 text-sm font-medium text-main-text disabled:opacity-60"
+              >
+                <FileText size={16} />
+                {generatingReport ? 'جارٍ إنشاء التقرير...' : 'إنشاء التقرير'}
+              </button>
+            )}
 
-            <DocumentActionButton
-              icon={BookOpen}
-              label="دليل المشارك"
-              workshop={workshop}
-              kind="guide"
-              onGenerate={handleGenerateGuide}
-              onUpdateWorkshop={onUpdateWorkshop}
-            />
+            {isAdmin && (
+              <DocumentActionButton
+                icon={BookOpen}
+                label="دليل المشارك"
+                workshop={workshop}
+                kind="guide"
+                onGenerate={handleGenerateGuide}
+                onUpdateWorkshop={onUpdateWorkshop}
+              />
+            )}
           </div>
         </div>
 

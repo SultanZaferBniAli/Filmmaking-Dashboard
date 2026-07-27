@@ -9,6 +9,7 @@ import { appendAuditEntry, diffFields } from '../audit.js';
 import { createStagingSession, loadStagingSession, patchStagingRow, setBatchWorkshopId, applyStagingSession, discardStagingSession } from '../adminStaging.js';
 import { trainerPhotosDir, workshopPhotosDir, findTrainerPhoto, listWorkshopPhotos, nextWorkshopPhotoIndex } from '../mediaPaths.js';
 import { validateImageUpload, writeImageFile, removeImageFile } from '../imageStore.js';
+import { requireAdmin } from '../auth.js';
 
 const applyBodySchema = z.object({ batches: z.array(z.string()).optional() });
 
@@ -16,7 +17,11 @@ const applyBodySchema = z.object({ batches: z.array(z.string()).optional() });
 // (inline-edit re-validates live) -> apply (atomic write + audit, reusing store.ts/adminStaging.ts)
 // or discard. Plus dedicated trainer/workshop photo upload — writes the file *and* updates the
 // owning record's image column in one call (the generic attachments.ts route only writes a file).
+// Registered inside its own encapsulated `app.register()` context in server.ts, so this hook
+// only applies to admin.ts's own routes, not the whole server.
 export function registerAdminRoutes(app: FastifyInstance) {
+  app.addHook('preHandler', requireAdmin);
+
   app.post('/admin/upload', async (req) => {
     const files: { filename: string; buffer: Buffer }[] = [];
     for await (const part of req.parts({ limits: { fileSize: MAX_UPLOAD_BYTES } })) {

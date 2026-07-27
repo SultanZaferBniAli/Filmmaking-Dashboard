@@ -3,7 +3,8 @@ import type { Workshop } from '../data/workshops';
 import type { Trainer } from '../data/trainers';
 import type { Participant } from '../data/participants';
 import type { FeedbackResponse } from '../data/feedback';
-import { fetchWorkshops, fetchTrainers, fetchParticipants, fetchFeedback, saveWorkshopAttendance } from '../data/api';
+import { fetchWorkshops, fetchTrainers, fetchParticipants, fetchFeedback, saveWorkshopAttendance, API_URL } from '../data/api';
+import { useAuth } from './AuthContext';
 
 type DataContextValue = {
   workshops: Workshop[];
@@ -27,7 +28,10 @@ type DataContextValue = {
 
 const DataContext = createContext<DataContextValue | null>(null);
 
+const SSE_DEBOUNCE_MS = 300;
+
 export function DataProvider({ children }: { children: ReactNode }) {
+  const { role } = useAuth();
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -72,6 +76,56 @@ export function DataProvider({ children }: { children: ReactNode }) {
       controller.abort();
     };
   }, [reloadToken]);
+
+  // Live updates: a change on the backend (by this tab or any other logged-in session) pushes an
+  // SSE event naming which entity changed, and we refetch just that entity's list — not the
+  // existing `reload()`, which would refetch all four. Debounced per entity so a bulk-import
+  // burst (many writes in a row) doesn't trigger a refetch storm.
+  useEffect(() => {
+    if (!role) return;
+
+    const refetchers: Record<string, () => void> = {
+      workshops: () => {
+        fetchWorkshops().then(setWorkshops).catch((err) => console.error('Failed to refresh workshops after a live update.', err));
+      },
+      trainers: () => {
+        fetchTrainers().then(setTrainers).catch((err) => console.error('Failed to refresh trainers after a live update.', err));
+      },
+      participants: () => {
+        fetchParticipants().then(setParticipants).catch((err) => console.error('Failed to refresh participants after a live update.', err));
+      },
+      feedback: () => {
+        fetchFeedback().then(setFeedback).catch((err) => console.error('Failed to refresh feedback after a live update.', err));
+      },
+    };
+
+    const timers = new Map<string, ReturnType<typeof setTimeout>>();
+    const eventSource = new EventSource(`${API_URL}/events`, { withCredentials: true });
+
+    eventSource.addEventListener('change', (event) => {
+      try {
+        const { entity } = JSON.parse((event as MessageEvent<string>).data) as { entity: string };
+        const refetch = refetchers[entity];
+        if (!refetch) return;
+        const existingTimer = timers.get(entity);
+        if (existingTimer) clearTimeout(existingTimer);
+        timers.set(
+          entity,
+          setTimeout(() => {
+            refetch();
+            timers.delete(entity);
+          }, SSE_DEBOUNCE_MS),
+        );
+      } catch (err) {
+        console.error('Failed to parse a live update event.', err);
+      }
+    });
+
+    return () => {
+      for (const timer of timers.values()) clearTimeout(timer);
+      eventSource.close();
+    };
+  }, [role]);
 
   const value = useMemo<DataContextValue>(
     () => ({

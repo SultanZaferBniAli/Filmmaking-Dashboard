@@ -6,6 +6,7 @@ import { findRowById } from '../store.js';
 import { MAX_UPLOAD_BYTES } from '../config.js';
 import { ApiError } from '../errors.js';
 import { workshopDocsDir, removeExistingWorkshopDocuments, type WorkshopDocKind } from '../mediaPaths.js';
+import { requireAdmin } from '../auth.js';
 
 const ALLOWED_EXTENSIONS = new Set(['.pdf', '.doc', '.docx']);
 const ROUTE_KINDS: { route: 'report' | 'guide'; dirKind: WorkshopDocKind }[] = [
@@ -15,7 +16,7 @@ const ROUTE_KINDS: { route: 'report' | 'guide'; dirKind: WorkshopDocKind }[] = [
 
 export function registerWorkshopDocumentRoutes(app: FastifyInstance) {
   for (const { route: kind, dirKind } of ROUTE_KINDS) {
-    app.post(`/workshops/:id/${kind}-file`, async (req) => {
+    app.post(`/workshops/:id/${kind}-file`, { preHandler: requireAdmin }, async (req) => {
       const { id } = req.params as { id: string };
       const workshop = await findRowById(workshopEntity, id);
       if (!workshop) throw new ApiError(404, 'NOT_FOUND', `workshops/${id} not found`);
@@ -45,7 +46,7 @@ export function registerWorkshopDocumentRoutes(app: FastifyInstance) {
       return { url: `/files/workshops/${dirKind}/${encodeURIComponent(storedName)}`, filename: storedName };
     });
 
-    app.delete(`/workshops/:id/${kind}-file`, async (req) => {
+    app.delete(`/workshops/:id/${kind}-file`, { preHandler: requireAdmin }, async (req) => {
       const { id } = req.params as { id: string };
       const workshop = await findRowById(workshopEntity, id);
       if (!workshop) throw new ApiError(404, 'NOT_FOUND', `workshops/${id} not found`);

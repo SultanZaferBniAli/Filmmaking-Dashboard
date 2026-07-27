@@ -2,15 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Workshop } from '../data/workshops';
 import { getWorkshopPhase } from '../state/selectors';
 import { useData } from '../state/DataContext';
+import { useAuth } from '../state/AuthContext';
 import SummaryCards from '../components/workshops/SummaryCards';
 import WorkshopTypeLegend from '../components/workshops/WorkshopTypeLegend';
 import FilterBar, { type WorkshopFilters } from '../components/workshops/FilterBar';
 import WorkshopCard from '../components/workshops/WorkshopCard';
-import WorkshopFormModal, { type WorkshopFormValues } from '../components/workshops/WorkshopFormModal';
+import WorkshopFormModal from '../components/workshops/WorkshopFormModal';
 import WorkshopDetailPage from './WorkshopDetailPage';
 import DeleteConfirmModal from '../components/workshops/DeleteConfirmModal';
 import Pagination from '../components/Pagination';
 import { exportWorkshopsToExcel, WorkshopsExportError } from '../utils/exportWorkshops';
+import { deleteWorkshop } from '../data/api';
 import { useNotifications } from '../state/NotificationsContext';
 
 const defaultFilters: WorkshopFilters = { workshopTypes: [], fields: [], regions: [], statuses: [] };
@@ -21,7 +23,8 @@ type Props = {
 };
 
 export default function WorkshopsPage({ onNavigateToTrainer }: Props) {
-  const { workshops: workshopList, setWorkshops: setWorkshopList, updateWorkshop } = useData();
+  const { workshops: workshopList, updateWorkshop, reload } = useData();
+  const { isAdmin } = useAuth();
   const { addNotification } = useNotifications();
   const [filters, setFilters] = useState<WorkshopFilters>(defaultFilters);
   const [search, setSearch] = useState('');
@@ -30,6 +33,7 @@ export default function WorkshopsPage({ onNavigateToTrainer }: Props) {
   const [formTarget, setFormTarget] = useState<Workshop | null>(null);
   const [detailTargetId, setDetailTargetId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Workshop | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Always resolved fresh from the shared `workshopList` (instead of holding its own copy)
   // so the open detail view never goes stale after an attendance save or any other update.
@@ -77,33 +81,18 @@ export default function WorkshopsPage({ onNavigateToTrainer }: Props) {
     setPage(0);
   }, [filters.workshopTypes, filters.fields, filters.regions, filters.statuses, search]);
 
-  function handleSaveEdit(original: Workshop, values: WorkshopFormValues) {
-    setWorkshopList((list) =>
-      list.map((w) =>
-        w.workshop_id === original.workshop_id
-          ? {
-              ...w,
-              workshop_name: values.workshop_name,
-              workshop_type: values.workshop_type,
-              field: values.field,
-              region: values.region,
-              city: values.city,
-              trainer_name: values.trainer_name,
-              start_date: values.start_date,
-              end_date: values.end_date,
-              capacity: values.capacity,
-              description: values.description,
-              updated_at: new Date().toISOString().slice(0, 10),
-            }
-          : w,
-      ),
-    );
-    setFormTarget(null);
-  }
-
-  function handleDelete(workshop: Workshop) {
-    setWorkshopList((list) => list.filter((w) => w.workshop_id !== workshop.workshop_id));
-    setDeleteTarget(null);
+  async function handleDelete(workshop: Workshop) {
+    setDeleting(true);
+    try {
+      await deleteWorkshop(workshop.workshop_id);
+      reload();
+      addNotification(`تم حذف ورشة "${workshop.workshop_name}" بنجاح`);
+      setDeleteTarget(null);
+    } catch (err) {
+      addNotification(err instanceof Error ? err.message : 'تعذّر حذف الورشة، حاول مرة أخرى.');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleExport() {
@@ -167,8 +156,8 @@ export default function WorkshopsPage({ onNavigateToTrainer }: Props) {
                 key={w.workshop_id}
                 workshop={w}
                 onViewDetails={(w) => setDetailTargetId(w.workshop_id)}
-                onEdit={setFormTarget}
-                onDelete={setDeleteTarget}
+                onEdit={isAdmin ? setFormTarget : undefined}
+                onDelete={isAdmin ? setDeleteTarget : undefined}
               />
             ))}
           </div>
@@ -183,18 +172,13 @@ export default function WorkshopsPage({ onNavigateToTrainer }: Props) {
         </>
       )}
 
-      {formTarget && (
-        <WorkshopFormModal
-          initial={formTarget}
-          onClose={() => setFormTarget(null)}
-          onSave={(values) => handleSaveEdit(formTarget, values)}
-        />
-      )}
+      {formTarget && <WorkshopFormModal initial={formTarget} onClose={() => setFormTarget(null)} />}
       {deleteTarget && (
         <DeleteConfirmModal
           workshop={deleteTarget}
           onClose={() => setDeleteTarget(null)}
           onConfirm={() => handleDelete(deleteTarget)}
+          confirming={deleting}
         />
       )}
     </main>

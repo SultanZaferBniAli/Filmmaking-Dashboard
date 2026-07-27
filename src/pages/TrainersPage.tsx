@@ -1,18 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import type { Trainer } from '../data/trainers';
 import { nationalityByCode } from '../data/trainers';
 import { filterTrainers, computeTrainerKpis, defaultTrainerFilters, matchesTrainerSearch, type TrainerFilters } from '../state/trainerSelectors';
 import { useData } from '../state/DataContext';
+import { useAuth } from '../state/AuthContext';
 import { paginate } from '../state/pagination';
-import { API_URL } from '../data/api';
+import { API_URL, deleteTrainer } from '../data/api';
 import { resolveFileUrl } from '../utils/resolveFileUrl';
 import { deriveExpertiseTags } from '../utils/trainerExpertiseTags';
 import TrainerKpiCards from '../components/trainers/TrainerKpiCards';
 import TrainerFilterBar from '../components/trainers/TrainerFilterBar';
 import TrainerCard from '../components/trainers/TrainerCard';
+import TrainerFormModal from '../components/trainers/TrainerFormModal';
+import TrainerDeleteConfirmModal from '../components/trainers/TrainerDeleteConfirmModal';
 import Pagination from '../components/Pagination';
 import TrainerDetailPage from './TrainerDetailPage';
 import { exportTrainersToExcel } from '../utils/exportTrainers';
+import { useNotifications } from '../state/NotificationsContext';
 
 const PAGE_SIZE = 9;
 
@@ -33,12 +38,18 @@ type Props = {
 };
 
 export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
-  const { trainers: trainerList } = useData();
+  const { trainers: trainerList, reload } = useData();
+  const { isAdmin } = useAuth();
+  const { addNotification } = useNotifications();
   const [filters, setFilters] = useState<TrainerFilters>(defaultTrainerFilters);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
 
   const [detailTargetId, setDetailTargetId] = useState<string | null>(initialDetailTrainerId);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Trainer | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Trainer | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filteredTrainers = useMemo(
     () => filterTrainers(trainerList, filters).filter((t) => matchesTrainerSearch(t, search)),
@@ -56,6 +67,20 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
     setPage(0);
   }, [filters, search]);
 
+  async function handleDeleteTrainer(trainer: Trainer) {
+    setDeleting(true);
+    try {
+      await deleteTrainer(trainer.id);
+      reload();
+      addNotification(`تم حذف المدرب "${trainer.fullName}" بنجاح`);
+      setDeleteTarget(null);
+    } catch (err) {
+      addNotification(err instanceof Error ? err.message : 'تعذّر حذف المدرب، حاول مرة أخرى.');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   if (detailTarget) {
     return <TrainerDetailPage trainer={detailTarget} onBack={() => setDetailTargetId(null)} />;
   }
@@ -64,18 +89,32 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
     <main className="@container mx-auto flex w-full max-w-[1600px] flex-col gap-4 px-6 pb-10 md:px-10">
       <TrainerKpiCards kpis={kpis} />
 
-      <TrainerFilterBar
-        trainers={trainerList}
-        filters={filters}
-        onChange={setFilters}
-        onReset={() => {
-          setFilters(defaultTrainerFilters);
-          setSearch('');
-        }}
-        onExport={() => exportTrainersToExcel(filteredTrainers)}
-        search={search}
-        onSearchChange={setSearch}
-      />
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <TrainerFilterBar
+            trainers={trainerList}
+            filters={filters}
+            onChange={setFilters}
+            onReset={() => {
+              setFilters(defaultTrainerFilters);
+              setSearch('');
+            }}
+            onExport={() => exportTrainersToExcel(filteredTrainers)}
+            search={search}
+            onSearchChange={setSearch}
+          />
+        </div>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
+            className="flex shrink-0 items-center gap-1.5 rounded-xl bg-burgundy px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            <Plus size={16} />
+            إضافة مدرب
+          </button>
+        )}
+      </div>
 
       {filteredTrainers.length === 0 ? (
         <div className="rounded-[20px] bg-surface p-16 text-center text-sm text-subtle-blue">
@@ -96,6 +135,8 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
                 specialization={deriveSpecialization(t)}
                 expertise={deriveExpertiseTags(t.position)}
                 onClick={() => setDetailTargetId(t.id)}
+                onEdit={isAdmin ? () => setEditTarget(t) : undefined}
+                onDelete={isAdmin ? () => setDeleteTarget(t) : undefined}
               />
             ))}
           </div>
@@ -108,6 +149,17 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
             onPageChange={setPage}
           />
         </>
+      )}
+
+      {addModalOpen && <TrainerFormModal onClose={() => setAddModalOpen(false)} />}
+      {editTarget && <TrainerFormModal initial={editTarget} onClose={() => setEditTarget(null)} />}
+      {deleteTarget && (
+        <TrainerDeleteConfirmModal
+          trainer={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={() => handleDeleteTrainer(deleteTarget)}
+          confirming={deleting}
+        />
       )}
     </main>
   );

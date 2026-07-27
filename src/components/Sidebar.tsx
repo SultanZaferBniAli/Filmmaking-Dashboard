@@ -15,9 +15,12 @@ type Props = {
   onChange: (key: NavKey) => void;
   mobileOpen: boolean;
   onCloseMobile: () => void;
+  isAdmin: boolean;
 };
 
-function SidebarContent({ active, onChange }: { active: NavKey; onChange: (key: NavKey) => void }) {
+function SidebarContent({ active, onChange, isAdmin }: { active: NavKey; onChange: (key: NavKey) => void; isAdmin: boolean }) {
+  const visibleItems = isAdmin ? navItems : navItems.filter((item) => item.key !== 'admin');
+
   return (
     <>
       <div className="mb-10 flex items-center justify-center gap-3">
@@ -26,7 +29,7 @@ function SidebarContent({ active, onChange }: { active: NavKey; onChange: (key: 
       </div>
 
       <nav className="flex flex-col gap-1">
-        {navItems.map(({ key, label, icon: Icon }) => {
+        {visibleItems.map(({ key, label, icon: Icon }) => {
           const isActive = key === active;
           return (
             <button
@@ -50,11 +53,11 @@ function SidebarContent({ active, onChange }: { active: NavKey; onChange: (key: 
   );
 }
 
-export default function Sidebar({ active, onChange, mobileOpen, onCloseMobile }: Props) {
+export default function Sidebar({ active, onChange, mobileOpen, onCloseMobile, isAdmin }: Props) {
   return (
     <>
       <aside className="hidden w-[238px] shrink-0 rounded-[20px] border-s border-border-soft bg-surface px-6 py-8 mr-6 md:flex md:flex-col">
-        <SidebarContent active={active} onChange={onChange} />
+        <SidebarContent active={active} onChange={onChange} isAdmin={isAdmin} />
       </aside>
 
       {mobileOpen && (
@@ -80,6 +83,7 @@ export default function Sidebar({ active, onChange, mobileOpen, onCloseMobile }:
                 onChange(key);
                 onCloseMobile();
               }}
+              isAdmin={isAdmin}
             />
           </aside>
         </div>
