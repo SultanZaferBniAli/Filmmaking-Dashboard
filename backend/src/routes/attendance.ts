@@ -5,6 +5,7 @@ import { readRows, writeRows, findRowById } from '../store.js';
 import { appendAuditEntry, diffFields, type ChangedFieldDiff } from '../audit.js';
 import { ApiError, zodToApiError } from '../errors.js';
 import { serializeWorkshop } from '../serialize/workshop.js';
+import { requireAdmin } from '../auth.js';
 
 const dayField = z.boolean().nullable().optional();
 const attendanceEntrySchema = z.object({
@@ -24,7 +25,7 @@ const attendancePayloadSchema = z.object({
 // server-side (never trusts client-computed aggregates), writes them in a single atomic
 // operation, and logs one audit entry per participant that actually changed.
 export function registerAttendanceRoute(app: FastifyInstance) {
-  app.patch('/workshops/:id/attendance', async (req) => {
+  app.patch('/workshops/:id/attendance', { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params as { id: string };
     const workshop = await findRowById(workshopEntity, id);
     if (!workshop) throw new ApiError(404, 'NOT_FOUND', `workshops/${id} not found`);

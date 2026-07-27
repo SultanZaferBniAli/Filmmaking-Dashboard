@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import * as XLSX from 'xlsx';
 import { DATA_DIR, BACKUPS_DIR, MAX_BACKUPS_PER_ENTITY } from './config.js';
 import type { EntityDescriptor, Row } from './entities/types.js';
+import { broadcastChange } from './sse.js';
 
 const SHEET_NAME = 'البيانات';
 const GUIDE_SHEET_NAME = 'دليل الأعمدة';
@@ -229,6 +230,7 @@ export async function writeRows(entity: EntityDescriptor, rows: Row[]): Promise<
   try {
     await enqueue(file, () => performWrite(entity, file, rows));
     pendingWrites.delete(entity.name);
+    broadcastChange(entity.name);
   } catch (err) {
     if (err instanceof FileLockedError) {
       pendingWrites.set(entity.name, { entity, rows, queuedAt: new Date().toISOString() });

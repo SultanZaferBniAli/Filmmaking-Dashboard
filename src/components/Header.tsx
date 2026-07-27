@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 import { useNotifications } from '../state/NotificationsContext';
+import { useAuth } from '../state/AuthContext';
 import { formatRelativeTime } from '../utils/date';
 
 type Props = {
@@ -15,6 +16,7 @@ export default function Header({
   subtitle = 'نظرة عامة على الورش و العمليات التدريبية',
 }: Props) {
   const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { role, logout } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -35,6 +37,17 @@ export default function Header({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        {role && (
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="flex items-center gap-1.5 rounded-2xl border border-border bg-surface px-3 py-2 text-xs text-main-text hover:bg-white/5"
+            aria-label="تسجيل الخروج"
+          >
+            <LogOut size={14} />
+            <span>خروج</span>
+          </button>
+        )}
         <div className="relative">
           <button
             type="button"

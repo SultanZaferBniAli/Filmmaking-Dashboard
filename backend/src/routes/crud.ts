@@ -4,6 +4,7 @@ import { readRows, writeRows, findActiveRows, findRowById, findRowsByField } fro
 import { appendAuditEntry, diffFields } from '../audit.js';
 import { ApiError, zodToApiError } from '../errors.js';
 import { findUniqueConflict } from '../uniqueness.js';
+import { requireAuth, requireAdmin } from '../auth.js';
 
 function checkUniqueness(entity: EntityDescriptor, rows: Row[], candidate: Row, excludeRow?: Row) {
   const conflict = findUniqueConflict(entity, rows, candidate, excludeRow);
@@ -52,12 +53,12 @@ function withWarnings(row: Row, warnings: string[]) {
 export function registerCrudRoutes(app: FastifyInstance, entity: EntityDescriptor) {
   const base = `/${entity.name}`;
 
-  app.get(base, async (req) => {
+  app.get(base, { preHandler: requireAuth }, async (req) => {
     const includeDeleted = (req.query as { includeDeleted?: string }).includeDeleted === 'true';
     return findActiveRows(entity, includeDeleted);
   });
 
-  app.get(`${base}/:id`, async (req) => {
+  app.get(`${base}/:id`, { preHandler: requireAuth }, async (req) => {
     const { id } = req.params as { id: string };
     const includeDeleted = (req.query as { includeDeleted?: string }).includeDeleted === 'true';
     const row = await findRowById(entity, id, includeDeleted);
@@ -65,7 +66,7 @@ export function registerCrudRoutes(app: FastifyInstance, entity: EntityDescripto
     return row;
   });
 
-  app.post(base, async (req, reply) => {
+  app.post(base, { preHandler: requireAdmin }, async (req, reply) => {
     const raw = req.body as Row;
     const { row: mapped, warnings } = entity.mapRow(raw);
     const parsed = entity.schema.safeParse(mapped);
@@ -92,7 +93,7 @@ export function registerCrudRoutes(app: FastifyInstance, entity: EntityDescripto
     return withWarnings(candidate, warnings);
   });
 
-  app.patch(`${base}/:id`, async (req) => {
+  app.patch(`${base}/:id`, { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params as { id: string };
     const rows = await readRows(entity);
     const idx = rows.findIndex((r) => String(r[entity.idField]) === id && !r.deleted_at);
@@ -127,7 +128,7 @@ export function registerCrudRoutes(app: FastifyInstance, entity: EntityDescripto
     return withWarnings(candidate, warnings);
   });
 
-  app.delete(`${base}/:id`, async (req, reply) => {
+  app.delete(`${base}/:id`, { preHandler: requireAdmin }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const rows = await readRows(entity);
     const idx = rows.findIndex((r) => String(r[entity.idField]) === id && !r.deleted_at);
@@ -152,7 +153,7 @@ export function registerCrudRoutes(app: FastifyInstance, entity: EntityDescripto
     reply.code(204);
   });
 
-  app.post(`${base}/:id/restore`, async (req) => {
+  app.post(`${base}/:id/restore`, { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params as { id: string };
     const rows = await readRows(entity);
     const idx = rows.findIndex((r) => String(r[entity.idField]) === id);

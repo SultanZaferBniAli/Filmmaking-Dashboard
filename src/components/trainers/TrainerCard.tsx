@@ -1,4 +1,5 @@
-import { Film, Star, UserRound, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Film, MoreVertical, Pencil, Star, Trash2, UserRound, Users } from 'lucide-react';
 
 export interface TrainerCardProps {
   id: string;
@@ -13,6 +14,8 @@ export interface TrainerCardProps {
   traineesCount?: number;
   imagePosition?: string;
   onClick?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function TrainerCard({
@@ -27,8 +30,11 @@ export default function TrainerCard({
   traineesCount,
   imagePosition = 'center',
   onClick,
+  onEdit,
+  onDelete,
 }: TrainerCardProps) {
   const hasStats = rating !== undefined || traineesCount !== undefined;
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div
@@ -66,6 +72,65 @@ export default function TrainerCard({
             'linear-gradient(to top, rgba(4, 20, 31, 1) 0%, rgba(4, 20, 31, 0.95) 30%, rgba(4, 20, 31, 0.45) 58%, transparent 78%)',
         }}
       />
+
+      {(onEdit || onDelete) && (
+        <div className="absolute start-3 top-3 z-10">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen((v) => !v);
+            }}
+            className="flex size-8 items-center justify-center rounded-lg border border-white/15 bg-black/40 text-white backdrop-blur-sm"
+            aria-label="خيارات"
+          >
+            <MoreVertical size={15} />
+          </button>
+          {menuOpen && (
+            <>
+              <button
+                type="button"
+                aria-label="إغلاق"
+                className="fixed inset-0 z-40"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                }}
+              />
+              <div className="absolute top-full z-50 mt-2 w-36 rounded-xl border border-border bg-bg p-1 shadow-xl start-0">
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      onEdit();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-off-white hover:bg-white/5"
+                  >
+                    <Pencil size={13} />
+                    تعديل
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      onDelete();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-notif-red hover:bg-notif-red/10"
+                  >
+                    <Trash2 size={13} />
+                    حذف
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2.5 p-5 text-right">
         <div className="flex flex-col gap-1">

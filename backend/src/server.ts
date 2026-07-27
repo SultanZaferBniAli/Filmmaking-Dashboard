@@ -1,9 +1,10 @@
 import Fastify from 'fastify';
 import multipart from '@fastify/multipart';
 import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import { ZodError } from 'zod';
 import { fileURLToPath } from 'node:url';
-import { PORT } from './config.js';
+import { PORT, FRONTEND_ORIGIN } from './config.js';
 import { entities } from './entities/index.js';
 import { registerCrudRoutes } from './routes/crud.js';
 import { registerRelationRoutes } from './routes/relations.js';
@@ -18,14 +19,22 @@ import { registerReportRoutes } from './routes/report.js';
 import { registerParticipantsExportRoutes } from './routes/participantsExport.js';
 import { registerWorkshopExportRoutes } from './routes/workshopExport.js';
 import { registerTrainerExportRoutes } from './routes/trainerExport.js';
+import { registerAuthRoutes } from './routes/auth.js';
+import { registerSseRoute } from './sse.js';
 import { ApiError, errorBody, zodToApiError } from './errors.js';
 import { FileLockedError, startPendingWriteSweeper } from './store.js';
 
 export function buildServer() {
   const app = Fastify({ logger: false });
 
-  app.register(cors, { origin: true, methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'] });
+  // credentials: true + an explicit origin (not `true`) is required for the browser to send the
+  // httpOnly session cookie on cross-origin requests from the Vite dev server.
+  app.register(cors, { origin: [FRONTEND_ORIGIN], credentials: true, methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'] });
+  app.register(cookie);
   app.register(multipart);
+
+  registerAuthRoutes(app);
+  registerSseRoute(app);
 
   for (const entity of Object.values(entities)) {
     registerCrudRoutes(app, entity);
@@ -37,7 +46,9 @@ export function buildServer() {
   registerAttachmentRoutes(app);
   registerFileRoutes(app);
   registerWorkshopDocumentRoutes(app);
-  registerAdminRoutes(app);
+  // Encapsulated context so admin.ts's own `requireAdmin` preHandler hook (added via
+  // app.addHook inside registerAdminRoutes) only applies to admin.ts's routes, not siblings.
+  app.register(async (adminApp) => registerAdminRoutes(adminApp));
   registerReportRoutes(app);
   registerParticipantsExportRoutes(app);
   registerWorkshopExportRoutes(app);

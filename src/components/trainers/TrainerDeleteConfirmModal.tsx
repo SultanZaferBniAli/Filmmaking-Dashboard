@@ -1,18 +1,18 @@
 import Modal from '../Modal';
-import type { Workshop } from '../../data/workshops';
+import type { Trainer } from '../../data/trainers';
 
 type Props = {
-  workshop: Workshop;
+  trainer: Trainer;
   onConfirm: () => void;
   onClose: () => void;
   confirming?: boolean;
 };
 
-export default function DeleteConfirmModal({ workshop, onConfirm, onClose, confirming }: Props) {
+export default function TrainerDeleteConfirmModal({ trainer, onConfirm, onClose, confirming }: Props) {
   return (
-    <Modal title="حذف الورشة" onClose={onClose} maxWidth="max-w-sm">
+    <Modal title="حذف المدرب" onClose={onClose} maxWidth="max-w-sm">
       <p className="text-right text-sm leading-relaxed text-body-text">
-        هل أنت متأكد من حذف ورشة <span className="font-semibold text-main-text">{workshop.workshop_name}</span>؟ لا يمكن
+        هل أنت متأكد من حذف المدرب <span className="font-semibold text-main-text">{trainer.fullName}</span>؟ لا يمكن
         التراجع عن هذا الإجراء.
       </p>
       <div className="mt-5 flex items-center justify-between gap-3">

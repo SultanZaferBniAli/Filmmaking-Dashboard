@@ -27,8 +27,8 @@ function dateRangeLabel(w: Workshop): string {
 type Props = {
   workshop: Workshop;
   onViewDetails: (w: Workshop) => void;
-  onEdit: (w: Workshop) => void;
-  onDelete: (w: Workshop) => void;
+  onEdit?: (w: Workshop) => void;
+  onDelete?: (w: Workshop) => void;
 };
 
 export default function WorkshopCard({ workshop, onViewDetails, onEdit, onDelete }: Props) {
@@ -124,17 +124,19 @@ export default function WorkshopCard({ workshop, onViewDetails, onEdit, onDelete
               <>
                 <button type="button" className="fixed inset-0 z-40" aria-label="إغلاق" onClick={() => setMenuOpen(false)} />
                 <div className="absolute bottom-full z-50 mb-2 w-40 rounded-xl border border-border bg-bg p-1 shadow-xl start-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onEdit(workshop);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-off-white hover:bg-white/5"
-                  >
-                    <Pencil size={13} />
-                    تعديل
-                  </button>
+                  {onEdit && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onEdit(workshop);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-off-white hover:bg-white/5"
+                    >
+                      <Pencil size={13} />
+                      تعديل
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -146,17 +148,19 @@ export default function WorkshopCard({ workshop, onViewDetails, onEdit, onDelete
                     <FileSpreadsheet size={13} />
                     تصدير Excel
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onDelete(workshop);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-notif-red hover:bg-notif-red/10"
-                  >
-                    <Trash2 size={13} />
-                    حذف
-                  </button>
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onDelete(workshop);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-right text-xs text-notif-red hover:bg-notif-red/10"
+                    >
+                      <Trash2 size={13} />
+                      حذف
+                    </button>
+                  )}
                 </div>
               </>
             )}

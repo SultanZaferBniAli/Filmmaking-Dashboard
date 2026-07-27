@@ -10,9 +10,11 @@ import WorkshopsPage from './pages/WorkshopsPage';
 import TrainersPage from './pages/TrainersPage';
 import ParticipantsPage from './pages/ParticipantsPage';
 import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
 import { FiltersProvider } from './state/FiltersContext';
 import { NotificationsProvider } from './state/NotificationsContext';
 import { DataProvider, useData } from './state/DataContext';
+import { AuthProvider, useAuth } from './state/AuthContext';
 import { useDashboardData } from './state/useDashboardData';
 
 const pageTitles: Partial<Record<NavKey, string>> = {
@@ -61,6 +63,7 @@ function AppShell() {
   // so it can't leak into an unrelated later visit to the trainers tab.
   const [pendingTrainerId, setPendingTrainerId] = useState<string | null>(null);
   const { loading, error, reload } = useData();
+  const { isAdmin } = useAuth();
 
   function goToTrainer(trainerId: string) {
     setPendingTrainerId(trainerId);
@@ -113,6 +116,7 @@ function AppShell() {
           onChange={handleNavChange}
           mobileOpen={mobileSidebarOpen}
           onCloseMobile={() => setMobileSidebarOpen(false)}
+          isAdmin={isAdmin}
         />
 
         <div className="flex flex-1 flex-col overflow-x-hidden">
@@ -126,20 +130,42 @@ function AppShell() {
           {active === 'workshops' && <WorkshopsPage onNavigateToTrainer={goToTrainer} />}
           {active === 'trainers' && <TrainersPage initialDetailTrainerId={pendingTrainerId} />}
           {active === 'participants' && <ParticipantsPage />}
-          {active === 'admin' && <AdminPage />}
+          {active === 'admin' && isAdmin && <AdminPage />}
         </div>
       </div>
     </FiltersProvider>
   );
 }
 
+function AuthGate() {
+  const { role, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div dir="rtl" className="flex min-h-screen items-center justify-center bg-bg text-subtle-blue">
+        جارٍ التحقق من الجلسة...
+      </div>
+    );
+  }
+
+  if (!role) return <LoginPage />;
+
+  // Only mounted once authenticated: DataProvider's initial fetches and its SSE connection both
+  // require a valid session, and DataProvider needs to sit under AuthProvider to read `role`.
+  return (
+    <DataProvider>
+      <AppShell />
+    </DataProvider>
+  );
+}
+
 function App() {
   return (
-    <NotificationsProvider>
-      <DataProvider>
-        <AppShell />
-      </DataProvider>
-    </NotificationsProvider>
+    <AuthProvider>
+      <NotificationsProvider>
+        <AuthGate />
+      </NotificationsProvider>
+    </AuthProvider>
   );
 }
 
