@@ -132,6 +132,18 @@ export async function deleteTrainerPhoto(trainerId: string): Promise<void> {
   return readJsonOrThrow(res);
 }
 
+export async function uploadTrainerPassport(trainerId: string, file: File): Promise<{ filename: string; url: string }> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/passport`, { method: 'POST', credentials: 'include', body: form });
+  return readJsonOrThrow(res);
+}
+
+export async function deleteTrainerPassport(trainerId: string): Promise<void> {
+  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/passport`, { method: 'DELETE', credentials: 'include' });
+  return readJsonOrThrow(res);
+}
+
 export async function uploadWorkshopPhotosAdmin(
   workshopId: string,
   files: File[],

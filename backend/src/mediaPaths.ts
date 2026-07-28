@@ -26,6 +26,10 @@ export function trainerPhotosDir(): string {
   return path.join(DATA_DIR, 'trainers', 'photos');
 }
 
+export function trainerPassportsDir(): string {
+  return path.join(DATA_DIR, 'trainers', 'passports');
+}
+
 export function workshopPhotosDir(): string {
   return path.join(DATA_DIR, 'workshops', 'photos');
 }
@@ -41,6 +45,14 @@ export function findTrainerPhoto(trainerId: string): { filename: string; url: st
   const match = listDirSafe(trainerPhotosDir()).find((f) => f.startsWith(`${trainerId}.`));
   if (!match) return null;
   return { filename: match, url: `/files/trainers/photos/${encodeURIComponent(match)}` };
+}
+
+// Same one-file-per-trainer convention as the profile photo, under its own passports/ folder so
+// the two upload kinds never collide even though they share the "<trainer_id>.<ext>" naming.
+export function findTrainerPassport(trainerId: string): { filename: string; url: string } | null {
+  const match = listDirSafe(trainerPassportsDir()).find((f) => f.startsWith(`${trainerId}.`));
+  if (!match) return null;
+  return { filename: match, url: `/files/trainers/passports/${encodeURIComponent(match)}` };
 }
 
 function parsePhotoIndex(workshopId: string, filename: string): number | null {

@@ -7,12 +7,14 @@ import { resolveFileUrl } from '../../utils/resolveFileUrl';
 import {
   uploadTrainerPhoto,
   deleteTrainerPhoto,
+  uploadTrainerPassport,
+  deleteTrainerPassport,
   uploadWorkshopPhotosAdmin,
   deleteWorkshopPhoto,
   AdminApiError,
 } from '../../data/admin';
 
-type TargetKind = 'trainer' | 'workshop';
+type TargetKind = 'trainer' | 'trainerPassport' | 'workshop';
 
 export default function ImageManager() {
   const { trainers, workshops, reload } = useData();
@@ -31,13 +33,18 @@ export default function ImageManager() {
     if (!files || files.length === 0) return;
     setBusy(true);
     try {
-      if (kind === 'trainer') {
+      if (kind === 'trainer' || kind === 'trainerPassport') {
         if (!trainerId) {
           addNotification('اختر مدربًا أولًا.');
           return;
         }
-        await uploadTrainerPhoto(trainerId, files[0]);
-        addNotification('تم حفظ صورة المدرب.');
+        if (kind === 'trainer') {
+          await uploadTrainerPhoto(trainerId, files[0]);
+          addNotification('تم حفظ صورة المدرب.');
+        } else {
+          await uploadTrainerPassport(trainerId, files[0]);
+          addNotification('تم حفظ صورة جواز السفر.');
+        }
       } else {
         if (!workshopId) {
           addNotification('اختر ورشة أولًا.');
@@ -61,6 +68,20 @@ export default function ImageManager() {
     try {
       await deleteTrainerPhoto(trainerId);
       addNotification('تم حذف صورة المدرب.');
+      reload();
+    } catch (err) {
+      addNotification(err instanceof AdminApiError ? err.message : 'تعذّر حذف الصورة.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRemoveTrainerPassport() {
+    if (!trainerId) return;
+    setBusy(true);
+    try {
+      await deleteTrainerPassport(trainerId);
+      addNotification('تم حذف صورة جواز السفر.');
       reload();
     } catch (err) {
       addNotification(err instanceof AdminApiError ? err.message : 'تعذّر حذف الصورة.');
@@ -98,6 +119,13 @@ export default function ImageManager() {
           </button>
           <button
             type="button"
+            onClick={() => setKind('trainerPassport')}
+            className={`rounded-full px-3 py-1.5 font-medium transition-colors ${kind === 'trainerPassport' ? 'bg-peach text-[#2a1608]' : 'text-white/60'}`}
+          >
+            جواز سفر
+          </button>
+          <button
+            type="button"
             onClick={() => setKind('workshop')}
             className={`rounded-full px-3 py-1.5 font-medium transition-colors ${kind === 'workshop' ? 'bg-peach text-[#2a1608]' : 'text-white/60'}`}
           >
@@ -105,7 +133,7 @@ export default function ImageManager() {
           </button>
         </div>
 
-        {kind === 'trainer' ? (
+        {kind === 'trainer' || kind === 'trainerPassport' ? (
           <select
             value={trainerId}
             onChange={(e) => setTrainerId(e.target.value)}
@@ -136,11 +164,11 @@ export default function ImageManager() {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          disabled={busy || (kind === 'trainer' ? !trainerId : !workshopId)}
+          disabled={busy || (kind === 'trainer' || kind === 'trainerPassport' ? !trainerId : !workshopId)}
           className="flex items-center gap-2 rounded-[10px] border border-border px-4 py-2 text-sm font-medium text-main-text disabled:opacity-40"
         >
           {busy ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-          رفع صورة{kind === 'workshop' ? 'ة/صور' : ''}
+          {kind === 'trainerPassport' ? 'رفع جواز السفر' : `رفع صورة${kind === 'workshop' ? 'ة/صور' : ''}`}
         </button>
         <input
           ref={inputRef}
@@ -172,6 +200,31 @@ export default function ImageManager() {
             </div>
           ) : (
             <p className="text-xs text-subtle-blue">لا توجد صورة لهذا المدرب بعد.</p>
+          )}
+        </div>
+      )}
+
+      {kind === 'trainerPassport' && selectedTrainer && (
+        <div className="flex items-center gap-3">
+          {selectedTrainer.passportDocument ? (
+            <div className="group relative h-32 w-24 overflow-hidden rounded-xl border border-white/10">
+              <img
+                src={resolveFileUrl(API_URL, selectedTrainer.passportDocument)}
+                alt={`جواز سفر ${selectedTrainer.fullName}`}
+                className="size-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveTrainerPassport}
+                disabled={busy}
+                className="absolute end-1 top-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                aria-label="حذف صورة جواز السفر"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-subtle-blue">لا توجد صورة جواز سفر لهذا المدرب بعد.</p>
           )}
         </div>
       )}

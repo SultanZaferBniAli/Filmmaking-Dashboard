@@ -1,7 +1,7 @@
 import type { Row } from '../entities/index.js';
 import { trainerEntity, workshopEntity } from '../entities/index.js';
 import { findActiveRows, findRowsByField } from '../store.js';
-import { findTrainerPhoto } from '../mediaPaths.js';
+import { findTrainerPhoto, findTrainerPassport } from '../mediaPaths.js';
 import { findMoviePosterUrl } from '../tmdb.js';
 
 // Mirrors the categorization already used by the frontend's own `nationalities` list
@@ -118,6 +118,7 @@ export async function serializeTrainer(row: Row) {
   const nationalityCode = String(row.nationality_code ?? '');
 
   const photo = findTrainerPhoto(String(row.trainer_id));
+  const passport = findTrainerPassport(String(row.trainer_id));
   const projects = await attachPosters(parseNotableWorks(row.notable_works, row.field ? String(row.field) : ''));
 
   return {
@@ -141,7 +142,7 @@ export async function serializeTrainer(row: Row) {
     accounts: splitList(row.accounts, /[،,]/),
     portfolioLinks: undefined,
     cvDocument: undefined,
-    passportDocument: resolvePassportUrl(row.passport_photo),
+    passportDocument: passport?.url ?? resolvePassportUrl(row.passport_photo),
     workshops: workshops.map((w) => ({
       id: w.workshop_id,
       name: w.workshop_name,

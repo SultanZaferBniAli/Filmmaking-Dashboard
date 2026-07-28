@@ -7,7 +7,15 @@ import { entities } from '../entities/index.js';
 import { readRows, writeRows, findRowById } from '../store.js';
 import { appendAuditEntry, diffFields } from '../audit.js';
 import { createStagingSession, loadStagingSession, patchStagingRow, setBatchWorkshopId, applyStagingSession, discardStagingSession } from '../adminStaging.js';
-import { trainerPhotosDir, workshopPhotosDir, findTrainerPhoto, listWorkshopPhotos, nextWorkshopPhotoIndex } from '../mediaPaths.js';
+import {
+  trainerPhotosDir,
+  trainerPassportsDir,
+  workshopPhotosDir,
+  findTrainerPhoto,
+  findTrainerPassport,
+  listWorkshopPhotos,
+  nextWorkshopPhotoIndex,
+} from '../mediaPaths.js';
 import { validateImageUpload, writeImageFile, removeImageFile } from '../imageStore.js';
 import { requireAdmin } from '../auth.js';
 
@@ -116,6 +124,77 @@ export function registerAdminRoutes(app: FastifyInstance) {
     const before = rows[idx];
     if (before.profile_image) {
       const updated = { ...before, profile_image: null };
+      const updatedRows = [...rows];
+      updatedRows[idx] = updated;
+      await writeRows(entities.trainers, updatedRows);
+      appendAuditEntry({
+        entity: 'trainers',
+        record_id: id,
+        action: 'update',
+        changed_fields: diffFields(before, updated),
+        source: 'admin-upload',
+        source_detail: null,
+        actor: null,
+      });
+    }
+
+    reply.code(204);
+  });
+
+  // Passport photo — same one-file-per-trainer convention as the profile photo above, kept in
+  // its own trainers/passports/ folder so the two never collide. The trainer row's own
+  // passport_photo column (also settable via the bulk Excel import) is kept in sync for the
+  // audit trail, but serializeTrainer() prefers a real uploaded file over that column when both
+  // are present — this route is the source of truth once a photo has actually been uploaded.
+  app.post('/admin/trainers/:id/passport', async (req) => {
+    const { id } = req.params as { id: string };
+    if (!(await findRowById(entities.trainers, id))) throw new ApiError(404, 'NOT_FOUND', `trainers/${id} not found`);
+
+    const file = await req.file({ limits: { fileSize: MAX_UPLOAD_BYTES } });
+    if (!file) throw new ApiError(400, 'BAD_REQUEST', 'No file uploaded (expected multipart field "file")');
+    const buffer = await file.toBuffer();
+    const ext = validateImageUpload(file.filename, buffer.byteLength);
+
+    const existing = findTrainerPassport(id);
+    if (existing && existing.filename !== `${id}${ext}`) {
+      await removeImageFile(path.join(trainerPassportsDir(), existing.filename));
+    }
+
+    const filename = `${id}${ext}`;
+    await writeImageFile(path.join(trainerPassportsDir(), filename), buffer);
+
+    const rows = await readRows(entities.trainers);
+    const idx = rows.findIndex((r) => String(r.trainer_id) === id);
+    const before = rows[idx];
+    const updated = { ...before, passport_photo: filename };
+    const updatedRows = [...rows];
+    updatedRows[idx] = updated;
+    await writeRows(entities.trainers, updatedRows);
+    appendAuditEntry({
+      entity: 'trainers',
+      record_id: id,
+      action: 'update',
+      changed_fields: diffFields(before, updated),
+      source: 'admin-upload',
+      source_detail: file.filename,
+      actor: null,
+    });
+
+    return { filename, url: `/files/trainers/passports/${encodeURIComponent(filename)}` };
+  });
+
+  app.delete('/admin/trainers/:id/passport', async (req, reply) => {
+    const { id } = req.params as { id: string };
+    if (!(await findRowById(entities.trainers, id))) throw new ApiError(404, 'NOT_FOUND', `trainers/${id} not found`);
+
+    const existing = findTrainerPassport(id);
+    if (existing) await removeImageFile(path.join(trainerPassportsDir(), existing.filename));
+
+    const rows = await readRows(entities.trainers);
+    const idx = rows.findIndex((r) => String(r.trainer_id) === id);
+    const before = rows[idx];
+    if (before.passport_photo) {
+      const updated = { ...before, passport_photo: null };
       const updatedRows = [...rows];
       updatedRows[idx] = updated;
       await writeRows(entities.trainers, updatedRows);
