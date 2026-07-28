@@ -51,7 +51,7 @@ export default function StatCards({ kpis }: { kpis: Kpis }) {
   // DOM order matches Figma's visual left-to-right order under RTL grid auto-placement
   // (first child renders rightmost, closest to the sidebar).
   const cards: CardDef[] = [
-    { key: 'registrations', label: 'إجمالي التسجيلات', count: kpis.registrations },
+    { key: 'registrations', label: 'إجمالي المسجلين', count: kpis.registrations },
     { key: 'accepted', label: 'إجمالي المقبولين', count: kpis.accepted },
     { key: 'attendance', label: 'إجمالي الحضور', count: kpis.attendance },
     { key: 'actual', label: 'الحضور الفعلي', count: kpis.actualAttendance, highlighted: true },

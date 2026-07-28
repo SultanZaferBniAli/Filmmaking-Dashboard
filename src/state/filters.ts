@@ -24,7 +24,7 @@ export const defaultFilters: Filters = {
 };
 
 export const regionMetricLabels: Record<RegionMetric, string> = {
-  applications: 'التسجيلات',
+  applications: 'المسجلين',
   accepted: 'المقبولين',
   attendance: 'الحضور',
   actual_attendance: 'الحضور الفعلي',

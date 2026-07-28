@@ -12,7 +12,7 @@ type Props = {
 
 export default function Header({
   onOpenSidebar,
-  title = 'لوحة تحكم الورش',
+  title = 'لوحة تحكم الورش التدريبية',
   subtitle = 'نظرة عامة على الورش و العمليات التدريبية',
 }: Props) {
   const { notifications, unreadCount, markAllRead } = useNotifications();

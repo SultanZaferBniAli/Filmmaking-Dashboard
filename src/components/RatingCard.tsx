@@ -5,7 +5,7 @@ export default function RatingCard({ ratings }: { ratings: Ratings }) {
   if (ratings.total === 0) {
     return (
       <div className="flex flex-col self-start rounded-[20px] bg-surface p-4 shadow-[0_4px_8px_2px_rgba(0,0,0,0.25)]">
-        <h3 className="mb-3 text-[15px] font-semibold text-main-text">التقييم العام للدورات</h3>
+        <h3 className="mb-3 text-[15px] font-semibold text-main-text">التقييم العام للورش التدريبية</h3>
         <div className="flex flex-col items-center justify-center gap-2 text-center">
           <Star size={20} className="text-white/20" />
           <p className="text-sm text-subtle-blue">لا توجد تقييمات ضمن الفلاتر الحالية</p>

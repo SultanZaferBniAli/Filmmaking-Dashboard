@@ -122,7 +122,7 @@ function AppShell() {
         <div className="flex flex-1 flex-col overflow-x-hidden">
           <Header
             onOpenSidebar={() => setMobileSidebarOpen(true)}
-            title={pageTitles[active] ?? 'لوحة تحكم الورش'}
+            title={pageTitles[active] ?? 'لوحة تحكم الورش التدريبية'}
             subtitle="نظرة عامة على الورش و العمليات التدريبية"
           />
 
