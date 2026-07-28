@@ -62,7 +62,7 @@ export default function TrainerDetailPage({ trainer, onBack }: Props) {
         <ProfileCard trainer={trainer} />
 
         <div className="flex flex-col gap-5">
-          <InfoCard title="الورش المسندة">
+          <InfoCard title="تفاصيل الورشة">
             {trainer.workshops.length > 0 ? (
               <ul className="flex flex-col gap-2">
                 {trainer.workshops.map((w) => (

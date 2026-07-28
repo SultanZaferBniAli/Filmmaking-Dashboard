@@ -114,7 +114,7 @@ export default function ProfileCard({ trainer, className }: Props) {
 
       {trainer.biography && (
         <div className="w-full rounded-xl border-e-[3px] border-orange/50 bg-black/10 p-4 text-right">
-          <p className="mb-1.5 text-base font-bold text-main-text">نبذة مهنية</p>
+          <p className="mb-1.5 text-base font-bold text-main-text">نبذه عن الخبير</p>
           <p className="text-xs leading-relaxed text-body-text">{trainer.biography}</p>
         </div>
       )}
