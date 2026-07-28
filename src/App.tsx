@@ -28,7 +28,7 @@ function Dashboard() {
   const { kpis, ratings, upcoming, completed, regionBreakdown, typeBreakdown } = useDashboardData();
 
   return (
-    <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 px-6 pb-10 md:px-10">
+    <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-4 px-6 pb-10 md:px-10">
       <StatCards kpis={kpis} />
 
       {/* DOM order below is the RTL reading order: first child renders rightmost
