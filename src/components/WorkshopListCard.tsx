@@ -11,34 +11,33 @@ type Props = {
 };
 
 const typeColor = Object.fromEntries(workshopTypeMeta.map((t) => [t.key, t.color]));
-const AUTO_SCROLL_PX_PER_SEC = 28;
+const STEP_INTERVAL_MS = 2000;
 
 export default function WorkshopListCard({ title, items, emptyLabel, metaMode }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   function stopScrolling() {
-    if (frameRef.current !== null) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }
 
   function startScrolling() {
-    if (frameRef.current !== null) return;
-    let last = performance.now();
-    const step = (now: number) => {
+    if (intervalRef.current !== null) return;
+    intervalRef.current = window.setInterval(() => {
       const el = listRef.current;
-      if (!el) return;
-      const dt = (now - last) / 1000;
-      last = now;
-      const maxScroll = el.scrollHeight - el.clientHeight;
-      if (maxScroll > 0) {
-        el.scrollTop = Math.min(maxScroll, el.scrollTop + AUTO_SCROLL_PX_PER_SEC * dt);
+      if (!el) {
+        stopScrolling();
+        return;
       }
-      frameRef.current = requestAnimationFrame(step);
-    };
-    frameRef.current = requestAnimationFrame(step);
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      if (maxScroll <= 0) return;
+      const stepSize = el.clientHeight; // one full page (~2 workshops) per step
+      const next = el.scrollTop + stepSize > maxScroll + 1 ? 0 : el.scrollTop + stepSize;
+      el.scrollTo({ top: next, behavior: 'smooth' });
+    }, STEP_INTERVAL_MS);
   }
 
   useEffect(() => stopScrolling, []);
@@ -62,7 +61,7 @@ export default function WorkshopListCard({ title, items, emptyLabel, metaMode }:
           <div className="pointer-events-none absolute bottom-5 end-5 top-5 z-10 border-e-2 border-dashed border-white/10" />
           <div
             ref={listRef}
-            className="h-full overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="h-full overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <ul className="flex flex-col gap-3.5">
               {items.map((w) => {
