@@ -128,7 +128,7 @@ export async function serializeTrainer(row: Row) {
     position: row.position_title ?? row.field ?? '',
     nationality: row.nationality ?? '',
     nationalityCode,
-    category: NATIONALITY_CATEGORY[nationalityCode] ?? 'regional',
+    category: NATIONALITY_CATEGORY[nationalityCode] ?? 'international',
     email: row.email ?? '',
     phone: row.contact ?? undefined,
     company: undefined,
