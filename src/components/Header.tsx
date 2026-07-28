@@ -33,7 +33,7 @@ export default function Header({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 ms-auto">
         {role && (
           <button
             type="button"
