@@ -71,12 +71,12 @@ async function readJsonOrThrow<T>(res: Response): Promise<T> {
 export async function uploadAdminFiles(files: File[]): Promise<StagingSession> {
   const form = new FormData();
   for (const file of files) form.append('files', file);
-  const res = await fetch(`${API_URL}/admin/upload`, { method: 'POST', body: form });
+  const res = await fetch(`${API_URL}/admin/upload`, { method: 'POST', credentials: 'include', body: form });
   return readJsonOrThrow<StagingSession>(res);
 }
 
 export async function fetchStaging(stagingId: string): Promise<StagingSession> {
-  const res = await fetch(`${API_URL}/admin/staging/${stagingId}`);
+  const res = await fetch(`${API_URL}/admin/staging/${stagingId}`, { credentials: 'include' });
   return readJsonOrThrow<StagingSession>(res);
 }
 
@@ -88,6 +88,7 @@ export async function patchStagingRow(
 ): Promise<StagedBatch> {
   const res = await fetch(`${API_URL}/admin/staging/${stagingId}/batches/${entity}/rows/${rowIndex}`, {
     method: 'PATCH',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch),
   });
@@ -97,6 +98,7 @@ export async function patchStagingRow(
 export async function setBatchWorkshopId(stagingId: string, entity: string, workshopId: string): Promise<StagedBatch> {
   const res = await fetch(`${API_URL}/admin/staging/${stagingId}/batches/${entity}/workshop`, {
     method: 'PATCH',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ workshop_id: workshopId }),
   });
@@ -106,6 +108,7 @@ export async function setBatchWorkshopId(stagingId: string, entity: string, work
 export async function applyStaging(stagingId: string, batches?: string[]): Promise<{ results: ApplyResult[]; sessionDiscarded: boolean }> {
   const res = await fetch(`${API_URL}/admin/staging/${stagingId}/apply`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ batches }),
   });
@@ -113,19 +116,19 @@ export async function applyStaging(stagingId: string, batches?: string[]): Promi
 }
 
 export async function discardStaging(stagingId: string): Promise<void> {
-  const res = await fetch(`${API_URL}/admin/staging/${stagingId}`, { method: 'DELETE' });
+  const res = await fetch(`${API_URL}/admin/staging/${stagingId}`, { method: 'DELETE', credentials: 'include' });
   return readJsonOrThrow(res);
 }
 
 export async function uploadTrainerPhoto(trainerId: string, file: File): Promise<{ filename: string; url: string }> {
   const form = new FormData();
   form.append('file', file);
-  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/photo`, { method: 'POST', body: form });
+  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/photo`, { method: 'POST', credentials: 'include', body: form });
   return readJsonOrThrow(res);
 }
 
 export async function deleteTrainerPhoto(trainerId: string): Promise<void> {
-  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/photo`, { method: 'DELETE' });
+  const res = await fetch(`${API_URL}/admin/trainers/${trainerId}/photo`, { method: 'DELETE', credentials: 'include' });
   return readJsonOrThrow(res);
 }
 
@@ -137,11 +140,11 @@ export async function uploadWorkshopPhotosAdmin(
   const form = new FormData();
   for (const file of files) form.append('files', file);
   if (makeCover) form.append('cover', 'true');
-  const res = await fetch(`${API_URL}/admin/workshops/${workshopId}/photos`, { method: 'POST', body: form });
+  const res = await fetch(`${API_URL}/admin/workshops/${workshopId}/photos`, { method: 'POST', credentials: 'include', body: form });
   return readJsonOrThrow(res);
 }
 
 export async function deleteWorkshopPhoto(workshopId: string, filename: string): Promise<void> {
-  const res = await fetch(`${API_URL}/admin/workshops/${workshopId}/photos/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+  const res = await fetch(`${API_URL}/admin/workshops/${workshopId}/photos/${encodeURIComponent(filename)}`, { method: 'DELETE', credentials: 'include' });
   return readJsonOrThrow(res);
 }

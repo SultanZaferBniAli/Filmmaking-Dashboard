@@ -7,7 +7,7 @@ export class DocumentUploadError extends Error {}
 export async function uploadWorkshopDocument(workshopId: string, kind: DocKind, file: File): Promise<{ url: string; filename: string }> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_URL}/workshops/${workshopId}/${kind}-file`, { method: 'POST', body: formData });
+  const res = await fetch(`${API_URL}/workshops/${workshopId}/${kind}-file`, { method: 'POST', credentials: 'include', body: formData });
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
     throw new DocumentUploadError(body?.error?.message ?? `تعذّر رفع الملف (${res.status})`);
@@ -16,7 +16,7 @@ export async function uploadWorkshopDocument(workshopId: string, kind: DocKind, 
 }
 
 export async function removeWorkshopDocument(workshopId: string, kind: DocKind): Promise<void> {
-  const res = await fetch(`${API_URL}/workshops/${workshopId}/${kind}-file`, { method: 'DELETE' });
+  const res = await fetch(`${API_URL}/workshops/${workshopId}/${kind}-file`, { method: 'DELETE', credentials: 'include' });
   if (!res.ok) throw new Error(`Failed to remove ${kind} file: ${res.status}`);
 }
 
