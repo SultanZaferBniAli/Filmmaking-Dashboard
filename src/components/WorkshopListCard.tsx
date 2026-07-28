@@ -11,7 +11,7 @@ type Props = {
 };
 
 const typeColor = Object.fromEntries(workshopTypeMeta.map((t) => [t.key, t.color]));
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 2;
 
 export default function WorkshopListCard({ title, items, emptyLabel, metaMode }: Props) {
   const [page, setPage] = useState(0);
@@ -20,7 +20,7 @@ export default function WorkshopListCard({ title, items, emptyLabel, metaMode }:
   const visible = items.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
-    <div className="flex h-[280px] min-h-[280px] w-full flex-col rounded-[20px] bg-surface p-6 shadow-[0_4px_8px_2px_rgba(0,0,0,0.25)]">
+    <div className="flex h-[178px] min-h-[178px] w-full flex-col rounded-[20px] bg-surface p-6 shadow-[0_4px_8px_2px_rgba(0,0,0,0.25)]">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-[16px] font-bold text-main-text">{title}</h3>
         {totalPages > 1 && (
@@ -46,11 +46,11 @@ export default function WorkshopListCard({ title, items, emptyLabel, metaMode }:
       </div>
 
       {visible.length === 0 ? (
-        <div className="flex h-[208px] items-center justify-center py-8 text-center text-sm text-subtle-blue">
+        <div className="flex h-[94px] items-center justify-center text-center text-sm text-subtle-blue">
           {emptyLabel}
         </div>
       ) : (
-        <div className="relative h-[208px] min-h-[208px] overflow-hidden">
+        <div className="relative h-[94px] min-h-[94px] overflow-hidden">
           <div className="absolute bottom-5 end-5 top-5 border-e-2 border-dashed border-white/10" />
           <ul className="flex flex-col gap-3.5">
             {visible.map((w) => {
