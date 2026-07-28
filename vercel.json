@@ -1,4 +1,25 @@
 {
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/auth", "destination": "https://filmmaking-dashboard-production.up.railway.app/auth" },
+    { "source": "/auth/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/auth/:path*" },
+    { "source": "/events", "destination": "https://filmmaking-dashboard-production.up.railway.app/events" },
+    { "source": "/workshops", "destination": "https://filmmaking-dashboard-production.up.railway.app/workshops" },
+    { "source": "/workshops/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/workshops/:path*" },
+    { "source": "/trainers", "destination": "https://filmmaking-dashboard-production.up.railway.app/trainers" },
+    { "source": "/trainers/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/trainers/:path*" },
+    { "source": "/participants", "destination": "https://filmmaking-dashboard-production.up.railway.app/participants" },
+    { "source": "/participants/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/participants/:path*" },
+    { "source": "/feedback", "destination": "https://filmmaking-dashboard-production.up.railway.app/feedback" },
+    { "source": "/feedback/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/feedback/:path*" },
+    { "source": "/view", "destination": "https://filmmaking-dashboard-production.up.railway.app/view" },
+    { "source": "/view/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/view/:path*" },
+    { "source": "/files", "destination": "https://filmmaking-dashboard-production.up.railway.app/files" },
+    { "source": "/files/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/files/:path*" },
+    { "source": "/admin", "destination": "https://filmmaking-dashboard-production.up.railway.app/admin" },
+    { "source": "/admin/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/admin/:path*" },
+    { "source": "/export", "destination": "https://filmmaking-dashboard-production.up.railway.app/export" },
+    { "source": "/export/:path*", "destination": "https://filmmaking-dashboard-production.up.railway.app/export/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

@@ -3,7 +3,14 @@ import type { Trainer } from './trainers';
 import type { Participant } from './participants';
 import type { FeedbackResponse } from './feedback';
 
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+// Production builds always call the backend through the same origin as the frontend — proxied
+// to the real backend via vercel.json's rewrites — instead of a cross-origin absolute URL. Cross-
+// site cookies (frontend on one domain, backend on another) get blocked outright by cross-site
+// tracking prevention on iOS (both Safari and Chrome, which shares Safari's engine there), so the
+// login session cookie would set but never actually get sent back on later requests. Routing
+// everything through one origin sidesteps that entirely, for every browser, not just iOS. Local
+// dev is unaffected — `import.meta.env.PROD` is only true for an actual `vite build`.
+export const API_URL = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_URL ?? 'http://localhost:4000');
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, { credentials: 'include', signal });
