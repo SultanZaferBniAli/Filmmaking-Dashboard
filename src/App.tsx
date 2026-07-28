@@ -123,7 +123,6 @@ function AppShell() {
           <Header
             onOpenSidebar={() => setMobileSidebarOpen(true)}
             title={pageTitles[active] ?? 'لوحة تحكم الورش التدريبية'}
-            subtitle="نظرة عامة على الورش و العمليات التدريبية"
           />
 
           {active === 'overview' && <Dashboard />}

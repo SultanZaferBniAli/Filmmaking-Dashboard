@@ -7,13 +7,11 @@ import { formatRelativeTime } from '../utils/date';
 type Props = {
   onOpenSidebar?: () => void;
   title?: string;
-  subtitle?: string;
 };
 
 export default function Header({
   onOpenSidebar,
   title = 'لوحة تحكم الورش التدريبية',
-  subtitle = 'نظرة عامة على الورش و العمليات التدريبية',
 }: Props) {
   const { notifications, unreadCount, markAllRead } = useNotifications();
   const { role, logout } = useAuth();
@@ -32,7 +30,6 @@ export default function Header({
         </button>
         <div>
           <h1 className="text-xl font-bold text-main-text md:text-2xl">{title}</h1>
-          <p className="mt-1 text-sm text-subtle-blue">{subtitle}</p>
         </div>
       </div>
 
