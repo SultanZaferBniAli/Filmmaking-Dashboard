@@ -11,33 +11,38 @@ type Props = {
 };
 
 const typeColor = Object.fromEntries(workshopTypeMeta.map((t) => [t.key, t.color]));
-const STEP_INTERVAL_MS = 2000;
+const AUTO_SCROLL_PX_PER_SEC = 12;
 
 export default function WorkshopListCard({ title, items, emptyLabel, metaMode }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
-  const intervalRef = useRef<number | null>(null);
+  const frameRef = useRef<number | null>(null);
 
   function stopScrolling() {
-    if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
     }
   }
 
   function startScrolling() {
-    if (intervalRef.current !== null) return;
-    intervalRef.current = window.setInterval(() => {
+    if (frameRef.current !== null) return;
+    let last = performance.now();
+    const step = (now: number) => {
       const el = listRef.current;
       if (!el) {
-        stopScrolling();
+        frameRef.current = null;
         return;
       }
+      const dt = (now - last) / 1000;
+      last = now;
       const maxScroll = el.scrollHeight - el.clientHeight;
-      if (maxScroll <= 0) return;
-      const stepSize = el.clientHeight; // one full page (~2 workshops) per step
-      const next = el.scrollTop + stepSize > maxScroll + 1 ? 0 : el.scrollTop + stepSize;
-      el.scrollTo({ top: next, behavior: 'smooth' });
-    }, STEP_INTERVAL_MS);
+      if (maxScroll > 0) {
+        const next = el.scrollTop + AUTO_SCROLL_PX_PER_SEC * dt;
+        el.scrollTop = next > maxScroll ? 0 : next;
+      }
+      frameRef.current = requestAnimationFrame(step);
+    };
+    frameRef.current = requestAnimationFrame(step);
   }
 
   useEffect(() => stopScrolling, []);
