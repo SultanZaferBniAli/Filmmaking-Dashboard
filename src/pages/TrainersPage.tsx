@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus } from 'lucide-react';
 import type { Trainer } from '../data/trainers';
 import { nationalityByCode } from '../data/trainers';
 import { filterTrainers, computeTrainerKpis, defaultTrainerFilters, matchesTrainerSearch, type TrainerFilters } from '../state/trainerSelectors';
@@ -46,7 +45,6 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
   const [page, setPage] = useState(0);
 
   const [detailTargetId, setDetailTargetId] = useState<string | null>(initialDetailTrainerId);
-  const [addModalOpen, setAddModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Trainer | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Trainer | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -89,32 +87,18 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
     <main className="@container mx-auto flex w-full max-w-[1600px] flex-col gap-4 px-6 pb-10 md:px-10">
       <TrainerKpiCards kpis={kpis} />
 
-      <div className="flex flex-wrap items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <TrainerFilterBar
-            trainers={trainerList}
-            filters={filters}
-            onChange={setFilters}
-            onReset={() => {
-              setFilters(defaultTrainerFilters);
-              setSearch('');
-            }}
-            onExport={() => exportTrainersToExcel(filteredTrainers)}
-            search={search}
-            onSearchChange={setSearch}
-          />
-        </div>
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setAddModalOpen(true)}
-            className="flex shrink-0 items-center gap-1.5 rounded-xl bg-burgundy px-4 py-2.5 text-sm font-semibold text-white"
-          >
-            <Plus size={16} />
-            إضافة مدرب
-          </button>
-        )}
-      </div>
+      <TrainerFilterBar
+        trainers={trainerList}
+        filters={filters}
+        onChange={setFilters}
+        onReset={() => {
+          setFilters(defaultTrainerFilters);
+          setSearch('');
+        }}
+        onExport={() => exportTrainersToExcel(filteredTrainers)}
+        search={search}
+        onSearchChange={setSearch}
+      />
 
       {filteredTrainers.length === 0 ? (
         <div className="rounded-[20px] bg-surface p-16 text-center text-sm text-subtle-blue">
@@ -151,7 +135,6 @@ export default function TrainersPage({ initialDetailTrainerId = null }: Props) {
         </>
       )}
 
-      {addModalOpen && <TrainerFormModal onClose={() => setAddModalOpen(false)} />}
       {editTarget && <TrainerFormModal initial={editTarget} onClose={() => setEditTarget(null)} />}
       {deleteTarget && (
         <TrainerDeleteConfirmModal
