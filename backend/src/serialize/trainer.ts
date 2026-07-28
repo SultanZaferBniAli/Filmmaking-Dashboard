@@ -38,20 +38,38 @@ function splitList(raw: unknown, separator: RegExp): string[] {
     .filter(Boolean);
 }
 
-// e.g. "Moon Knight (2022)؛ الفيل الأزرق" -> [{ title: "Moon Knight", year: 2022 }, { title: "الفيل الأزرق" }]
+// Handles three notable-works formats seen in the workbooks, tried in order:
+//   1. "Arabic Title (English Title) – 2010" — trainer's own display title plus an English
+//      title for TMDB lookup (which indexes almost everything in English), and the release year.
+//   2. "Title – 2010" — title and year, no separate English title.
+//   3. "Moon Knight (2022)" — the original format, year directly in parens with no dash.
+// e.g. "حرائق (Incendies) – 2010" -> { title: "حرائق", searchTitle: "Incendies", year: 2010 }
 function parseNotableWorks(raw: unknown, role: string) {
   return splitList(raw, /[؛;]/).map((entry) => {
-    const match = entry.match(/^(.*?)\s*\((\d{4})\)$/);
-    return match ? { title: match[1].trim(), year: Number(match[2]), role } : { title: entry, role };
+    const withEnglishTitle = entry.match(/^(.+?)\s*\(([^)]+)\)\s*[–—-]\s*(\d{4})$/);
+    if (withEnglishTitle) {
+      return { title: withEnglishTitle[1].trim(), searchTitle: withEnglishTitle[2].trim(), year: Number(withEnglishTitle[3]), role };
+    }
+    const withDash = entry.match(/^(.+?)\s*[–—-]\s*(\d{4})$/);
+    if (withDash) {
+      return { title: withDash[1].trim(), year: Number(withDash[2]), role };
+    }
+    const yearInParens = entry.match(/^(.*?)\s*\((\d{4})\)$/);
+    if (yearInParens) {
+      return { title: yearInParens[1].trim(), year: Number(yearInParens[2]), role };
+    }
+    return { title: entry, role };
   });
 }
 
 // Looks each notable work up on TMDB (in parallel) to attach a real poster image — best-effort:
 // titles that don't match anything (or that fail the request) just keep no poster, since these
-// are free-text names from the workbook, not guaranteed to be real/findable film titles.
-async function attachPosters<T extends { title: string; year?: number }>(projects: T[]): Promise<(T & { poster: string | null })[]> {
+// are free-text names from the workbook, not guaranteed to be real/findable film titles. Prefers
+// `searchTitle` (the English title, when the workbook provided one) over the Arabic display title
+// since TMDB's catalog is indexed in English and rarely matches Arabic titles directly.
+async function attachPosters<T extends { title: string; searchTitle?: string; year?: number }>(projects: T[]): Promise<(T & { poster: string | null })[]> {
   return Promise.all(
-    projects.map(async (p) => ({ ...p, poster: await findMoviePosterUrl(p.title, p.year) })),
+    projects.map(async (p) => ({ ...p, poster: await findMoviePosterUrl(p.searchTitle ?? p.title, p.year) })),
   );
 }
 
