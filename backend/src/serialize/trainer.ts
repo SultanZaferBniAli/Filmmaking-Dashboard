@@ -73,6 +73,16 @@ async function attachPosters<T extends { title: string; searchTitle?: string; ye
   );
 }
 
+// `passport_photo` is a plain filename in the workbook (matching how `profile_image` works) —
+// resolved against the same `trainers/documents` folder the entity already declares as its
+// attachments dir, unless it's already a full URL. Returns undefined (not null) so it can be
+// spread directly into the serialized trainer without overriding a real value with null.
+function resolvePassportUrl(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  if (/^https?:\/\//.test(value)) return value;
+  return `/files/trainers/documents/${value}`;
+}
+
 // The workbook records one free-text award phrase per trainer (sometimes with a year embedded,
 // e.g. "جائزة الأوسكار المصرية 2024 عن..."); surfaced as a single-item list rather than force-split
 // into title/organization since the source text doesn't cleanly separate those.
@@ -114,11 +124,11 @@ export async function serializeTrainer(row: Row) {
     id: row.trainer_id,
     fullName: row.name_ar,
     profileImage: photo?.url ?? null,
-    position: row.field ?? '',
+    position: row.position_title ?? row.field ?? '',
     nationality: row.nationality ?? '',
     nationalityCode,
     category: NATIONALITY_CATEGORY[nationalityCode] ?? 'regional',
-    email: '',
+    email: row.email ?? '',
     phone: row.contact ?? undefined,
     company: undefined,
     biography: buildBiography(row),
@@ -131,7 +141,7 @@ export async function serializeTrainer(row: Row) {
     accounts: splitList(row.accounts, /[،,]/),
     portfolioLinks: undefined,
     cvDocument: undefined,
-    passportDocument: undefined,
+    passportDocument: resolvePassportUrl(row.passport_photo),
     workshops: workshops.map((w) => ({
       id: w.workshop_id,
       name: w.workshop_name,

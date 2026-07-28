@@ -6,6 +6,8 @@ export const trainerSchema = z.object({
   trainer_id: z.string().regex(/^TR-\d{3,}$/, 'trainer_id must match TR-### (3+ digits)'),
   name_ar: z.string().trim().min(1, 'name_ar is required'),
   name_en: z.string().nullable(),
+  email: z.string().nullable(),
+  position_title: z.string().nullable(),
   nationality: z.string().nullable(),
   nationality_code: z.string().regex(/^[A-Z]{2}$/, 'nationality_code must be 2 uppercase ISO-3166 letters'),
   field: z.string().nullable(),
@@ -18,6 +20,7 @@ export const trainerSchema = z.object({
   award: z.string().nullable(),
   contact: z.string().nullable(),
   profile_image: z.string().nullable(),
+  passport_photo: z.string().nullable(),
   deleted_at: z.string().nullable().optional(),
 });
 
@@ -32,6 +35,8 @@ export function mapTrainerRow(raw: Row): MapRowResult {
     trainer_id: emptyToNull(raw.trainer_id),
     name_ar: cleanText(raw.name_ar),
     name_en: cleanText(raw.name_en),
+    email: cleanText(raw.email),
+    position_title: cleanText(raw.position_title),
     nationality: cleanText(raw.nationality),
     nationality_code: nationalityCode ? nationalityCode.toUpperCase() : null,
     field: cleanText(raw.field),
@@ -44,6 +49,7 @@ export function mapTrainerRow(raw: Row): MapRowResult {
     award: cleanText(raw.award),
     contact: cleanText(raw.contact),
     profile_image: emptyToNull(raw.profile_image),
+    passport_photo: emptyToNull(raw.passport_photo),
     deleted_at: emptyToNull(raw.deleted_at),
   };
 
@@ -58,6 +64,8 @@ export const trainerEntity: EntityDescriptor = {
     'trainer_id',
     'name_ar',
     'name_en',
+    'email',
+    'position_title',
     'nationality',
     'nationality_code',
     'field',
@@ -70,6 +78,7 @@ export const trainerEntity: EntityDescriptor = {
     'award',
     'contact',
     'profile_image',
+    'passport_photo',
   ],
   schema: trainerSchema,
   mapRow: mapTrainerRow,
