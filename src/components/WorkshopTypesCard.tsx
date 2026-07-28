@@ -41,7 +41,7 @@ export default function WorkshopTypesCard({ typeBreakdown }: { typeBreakdown: Ty
   const totalTarget = typeBreakdown.reduce((s, r) => s + r.target, 0);
 
   return (
-    <div className="mt-4 h-full min-h-[280px] md:min-h-[420px] rounded-[20px] bg-surface p-4 shadow-[0_25px_50px_0px_rgba(0,0,0,0.25)]">
+    <div className="h-full min-h-[280px] md:min-h-[420px] rounded-[20px] bg-surface p-4 shadow-[0_25px_50px_0px_rgba(0,0,0,0.25)]">
       <h3 className="mb-4 text-right text-[16px] font-bold text-main-text">مسارات الورش التدريبية</h3>
 
       <div className="flex flex-col gap-2">
