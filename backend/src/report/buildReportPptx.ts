@@ -204,36 +204,49 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
   const chart3 = renderedZip.file('ppt/charts/chart3.xml')?.asText();
   if (chart3) renderedZip.file('ppt/charts/chart3.xml', setBarChartSeries(chart3, content.statistics.by_experience));
 
-  // chart4 = slide8's "التقييم حسب المحاور الرئيسية" 5-question star-rating grid. Its category
-  // axis is hidden (<c:delete val="1"/> in the template) — the row question text ("ما مستوى رضاك
-  // العام…", etc.) is a set of separate static shapes laid out top-to-bottom in normal reading
-  // order, NOT the chart's own axis labels. But PowerPoint's default rendering for a horizontal
-  // ("bar"-direction) chart plots category idx0 at the BOTTOM row and idx(n-1) at the TOP —
-  // verified against the template's own bundled sample data (4.3/3.2/1.8/1.2/5 renders as a clean
-  // 5/1/2/3/4-star top-to-bottom pattern, only consistent with a bottom-up axis). So the values
-  // must be reversed here to land on the correct row: numeric_ratings[0] (overall_rating, meant
-  // for the TOP row) has to go in idx4, not idx0.
-  const chart4 = renderedZip.file('ppt/charts/chart4.xml')?.asText();
-  if (chart4) {
-    const ratings = content.satisfaction.numeric_ratings.map((r) => r.average ?? 0).reverse();
-    renderedZip.file('ppt/charts/chart4.xml', setStarRatingValues(chart4, ratings));
-  }
+  // Slide 8 ships 3 native charts for its rating/response-rate section: a 5-category star-rating
+  // grid ("التقييم حسب المحاور الرئيسية"), a 1-category star-rating bar ("إجمالي التقييم العام"),
+  // and a response-rate doughnut ("المشاركات المستلمة مقارنة بعدد الحضور"). Their XML part NUMBERS
+  // (chart4.xml/chart5.xml/chart6.xml) are NOT stable identifiers — a plain re-save in PowerPoint
+  // (e.g. after nudging a shape) reassigned which number backed the single-bar chart vs the
+  // doughnut between two revisions of the same template, with no visible change on the slide. So
+  // each part is identified here by its actual chart type + category count instead of by filename.
+  for (const chartFile of ['chart4.xml', 'chart5.xml', 'chart6.xml']) {
+    const xml = renderedZip.file(`ppt/charts/${chartFile}`)?.asText();
+    if (xml === undefined) continue;
 
-  // chart5 = the single "إجمالي التقييم العام" summary star bar, mirroring the same
-  // satisfaction.overall_rating shown as text elsewhere on slide8 (Text 79).
-  const chart5 = renderedZip.file('ppt/charts/chart5.xml')?.asText();
-  if (chart5) renderedZip.file('ppt/charts/chart5.xml', setStarRatingValues(chart5, [content.satisfaction.overall_rating]));
+    if (/<c:doughnutChart>/.test(xml)) {
+      // idx0 is the filled/colored slice, idx1 is the remainder — mirrors the rounded
+      // satisfaction.response_rate text (Text 97) rather than recomputing an unrounded fraction,
+      // so the doughnut and the "%" label next to it always agree.
+      const totalAttendance = content.satisfaction.total_attendance;
+      const responsesReceived = content.satisfaction.responses_received;
+      const filledPct = totalAttendance > 0 ? Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100) : 0;
+      renderedZip.file(`ppt/charts/${chartFile}`, setDoughnutValues(xml, [filledPct / 100, 1 - filledPct / 100]));
+      continue;
+    }
 
-  // chart6 = slide8's "المشاركات المستلمة مقارنة بعدد الحضور" response-rate doughnut (formatted
-  // as 0%): idx0 is the filled/colored slice, idx1 is the remainder — mirrors the rounded
-  // satisfaction.response_rate text (Text 97) rather than recomputing an unrounded fraction, so
-  // the doughnut and the "%" label next to it always agree.
-  const chart6 = renderedZip.file('ppt/charts/chart6.xml')?.asText();
-  if (chart6) {
-    const totalAttendance = content.satisfaction.total_attendance;
-    const responsesReceived = content.satisfaction.responses_received;
-    const filledPct = totalAttendance > 0 ? Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100) : 0;
-    renderedZip.file('ppt/charts/chart6.xml', setDoughnutValues(chart6, [filledPct / 100, 1 - filledPct / 100]));
+    const catCountMatch = /<c:cat>[\s\S]*?<c:ptCount val="(\d+)"/.exec(xml);
+    const catCount = catCountMatch ? Number(catCountMatch[1]) : 0;
+
+    if (catCount === 5) {
+      // The 5-question grid's category axis is hidden (<c:delete val="1"/> in the template) — the
+      // row question text ("ما مستوى رضاك العام…", etc.) is a set of separate static shapes laid
+      // out top-to-bottom in normal reading order, NOT the chart's own axis labels. But
+      // PowerPoint's default rendering for a horizontal ("bar"-direction) chart plots category
+      // idx0 at the BOTTOM row and idx(n-1) at the TOP — verified against the template's own
+      // bundled sample data (4.3/3.2/1.8/1.2/5 renders as a clean 5/1/2/3/4-star top-to-bottom
+      // pattern, only consistent with a bottom-up axis) and re-confirmed with fully distinct
+      // synthetic values (1/2/3/4/5) landing on their exact matching row. So the values must be
+      // reversed here to land on the correct row: numeric_ratings[0] (overall_rating, meant for
+      // the TOP row) has to go in idx4, not idx0.
+      const ratings = content.satisfaction.numeric_ratings.map((r) => r.average ?? 0).reverse();
+      renderedZip.file(`ppt/charts/${chartFile}`, setStarRatingValues(xml, ratings));
+    } else {
+      // The single "إجمالي التقييم العام" summary star bar, mirroring the same
+      // satisfaction.overall_rating shown as text elsewhere on slide8 (Text 79).
+      renderedZip.file(`ppt/charts/${chartFile}`, setStarRatingValues(xml, [content.satisfaction.overall_rating]));
+    }
   }
 
   return renderedZip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
