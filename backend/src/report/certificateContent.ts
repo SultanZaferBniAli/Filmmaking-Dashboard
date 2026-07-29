@@ -17,22 +17,11 @@ function parseIsoDate(iso: string): { day: number; month: number; year: number }
   return { day, month, year };
 }
 
-// Workshop days run the same start_time-end_time window every day (see workshop entity) — total
-// training hours is that daily window's length times how many calendar days the workshop spans,
-// matching the certificate template's own wording ("بإجمالي X ساعة تدريبية", the WORKSHOP's total
-// hours, not a per-participant prorated count — every certificate for a given workshop shows the
-// same total).
-function dailyHours(startTime: string, endTime: string): number {
-  const [sh, sm] = startTime.split(':').map(Number);
-  const [eh, em] = endTime.split(':').map(Number);
-  return eh + em / 60 - (sh + sm / 60);
-}
-
-function dayCount(startIso: string, endIso: string): number {
-  const start = new Date(startIso + 'T00:00:00Z').getTime();
-  const end = new Date(endIso + 'T00:00:00Z').getTime();
-  return Math.max(1, Math.round((end - start) / 86400000) + 1);
-}
+// Fixed org policy (confirmed rather than derived from workshop start_time/end_time): every
+// workshop day counts as 4 training hours, regardless of the actual daily schedule. Certificate
+// hours are prorated by the individual participant's own attendance — a 5-day workshop attended
+// in full is 20 hours; attended 4 of 5 days (still ≥80%, so still certificate-eligible) is 16.
+const HOURS_PER_DAY = 4;
 
 function formatHours(hours: number): string {
   return Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
@@ -73,17 +62,16 @@ export async function generateCertificateContent(workshopId: string, participant
     throw new ApiError(422, 'MISSING_GENDER', `participant ${participantId} has no gender on file — required to pick the male/female certificate template`);
   }
 
-  const startTime = workshopRow.start_time as string | null;
-  const endTime = workshopRow.end_time as string | null;
-  if (!startTime || !endTime) {
-    throw new ApiError(422, 'MISSING_WORKSHOP_TIMES', `workshop ${workshopId} is missing start_time/end_time — cannot compute certificate training hours`);
+  const sessionsAttended = participantRow.sessions_attended as number | null;
+  if (sessionsAttended === null) {
+    throw new ApiError(422, 'MISSING_ATTENDANCE', `participant ${participantId} has no sessions_attended on file — cannot compute certificate training hours`);
   }
 
   const trainerRow = workshopRow.trainer_id ? await findRowById(trainerEntity, String(workshopRow.trainer_id)) : undefined;
 
   const start = parseIsoDate(workshopRow.start_date as string);
   const end = parseIsoDate(workshopRow.end_date as string);
-  const totalHours = dailyHours(startTime, endTime) * dayCount(workshopRow.start_date as string, workshopRow.end_date as string);
+  const totalHours = HOURS_PER_DAY * sessionsAttended;
 
   return {
     gender,
@@ -100,9 +88,9 @@ export async function generateCertificateContent(workshopId: string, participant
 }
 
 // Every accepted participant meeting the attendance threshold — used by the bulk certificates.zip
-// route. Participants with no gender or the workshop's missing start_time/end_time would fail
-// generateCertificateContent's own checks; callers should skip those individually rather than
-// letting one bad row 500 the whole batch.
+// route. Participants with no gender or no sessions_attended would fail generateCertificateContent's
+// own checks; callers should skip those individually rather than letting one bad row 500 the whole
+// batch.
 export async function listEligibleParticipantIds(workshopId: string): Promise<string[]> {
   const participants = await findRowsByField(participantEntity, 'workshop_id', workshopId);
   return participants

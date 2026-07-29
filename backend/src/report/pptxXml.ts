@@ -95,12 +95,3 @@ export function setShapeTextByAnchor(xml: string, anchorText: string, newText: s
   return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
 }
 
-// Inserts a raw shape (or any raw <p:...> XML fragment) as the last child of the slide's shape
-// tree — used to add a shape a template is missing entirely (see buildCertificatePptx.ts's male
-// template, which ships without a trainer/manager signature row the female template has).
-export function insertShapeBeforeSpTreeClose(xml: string, shapeXml: string): string {
-  const marker = '</p:spTree>';
-  const idx = xml.indexOf(marker);
-  if (idx === -1) return xml;
-  return xml.slice(0, idx) + shapeXml + xml.slice(idx);
-}
