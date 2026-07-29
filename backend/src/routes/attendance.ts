@@ -4,7 +4,7 @@ import { workshopEntity, participantEntity, type Row } from '../entities/index.j
 import { readRows, writeRows, findRowById } from '../store.js';
 import { appendAuditEntry, diffFields, type ChangedFieldDiff } from '../audit.js';
 import { ApiError, zodToApiError } from '../errors.js';
-import { serializeWorkshop } from '../serialize/workshop.js';
+import { serializeWorkshop, computeWorkshopDayCount } from '../serialize/workshop.js';
 import { requireAdmin } from '../auth.js';
 
 const dayField = z.boolean().nullable().optional();
@@ -23,7 +23,11 @@ const attendancePayloadSchema = z.object({
 // Batch save for the Workshop Detail "الحضور" tab: accepts every changed participant's day
 // grid in one call, recomputes sessions_attended/attendance_percentage/attendance_status
 // server-side (never trusts client-computed aggregates), writes them in a single atomic
-// operation, and logs one audit entry per participant that actually changed.
+// operation, and logs one audit entry per participant that actually changed. total_sessions is
+// the workshop's real day span (computeWorkshopDayCount), not each participant's own stored
+// total_sessions — that field used to default to a flat 5 for any row missing it, silently
+// mismatching shorter workshops and both over-counting their attendance denominator and exposing
+// 2 extra, never-relevant day columns in the UI.
 export function registerAttendanceRoute(app: FastifyInstance) {
   app.patch('/workshops/:id/attendance', { preHandler: requireAdmin }, async (req) => {
     const { id } = req.params as { id: string };
@@ -32,6 +36,8 @@ export function registerAttendanceRoute(app: FastifyInstance) {
 
     const parsed = attendancePayloadSchema.safeParse(req.body);
     if (!parsed.success) throw zodToApiError(parsed.error);
+
+    const totalSessions = computeWorkshopDayCount(workshop.start_date as string, workshop.end_date as string);
 
     const rows = await readRows(participantEntity);
     const updatedRows = [...rows];
@@ -53,7 +59,6 @@ export function registerAttendanceRoute(app: FastifyInstance) {
         day_5: entry.day_5 ?? existing.day_5,
       };
 
-      const totalSessions = Number(existing.total_sessions ?? 5) || 5;
       const sessionsAttended = [merged.day_1, merged.day_2, merged.day_3, merged.day_4, merged.day_5]
         .slice(0, totalSessions)
         .filter(Boolean).length;

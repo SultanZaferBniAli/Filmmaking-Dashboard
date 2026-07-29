@@ -15,9 +15,25 @@ function splitThemes(themes: string | null): string[] {
     .filter(Boolean);
 }
 
-function toWorkshopParticipant(row: Row) {
-  const totalSessions = Number(row.total_sessions ?? 5) || 5;
-  const sessionAttendance = Array.from({ length: totalSessions }, (_, i) => Boolean(row[`day_${i + 1}`]));
+// Participants only ever have day_1..day_5 columns to attend against (see participant.ts), so a
+// workshop's own real span is clamped to that ceiling — a workshop can't have more trackable
+// attendance days than the data model supports.
+const MAX_TRACKED_DAYS = 5;
+
+// The real number of attendance days a workshop runs — the participant entity's own
+// `total_sessions` column is NOT the source of truth for this (it defaults to a flat 5 for any
+// row missing it, which silently mismatched a 3-day workshop's real span and showed 2 extra,
+// never-relevant attendance columns). Derived here from start_date/end_date instead, exactly like
+// the frontend's own workshop-duration display (WorkshopDetailPage.tsx's sessionDays()).
+export function computeWorkshopDayCount(startIso: string, endIso: string): number {
+  const start = new Date(startIso + 'T00:00:00Z').getTime();
+  const end = new Date(endIso + 'T00:00:00Z').getTime();
+  const days = Math.max(1, Math.round((end - start) / 86400000) + 1);
+  return Math.min(days, MAX_TRACKED_DAYS);
+}
+
+function toWorkshopParticipant(row: Row, dayCount: number) {
+  const sessionAttendance = Array.from({ length: dayCount }, (_, i) => Boolean(row[`day_${i + 1}`]));
   return {
     participant_id: row.participant_id,
     name: row.full_name_arabic,
@@ -60,6 +76,7 @@ export async function serializeWorkshop(row: Row) {
     if (rating >= 1 && rating <= 5) ratingCounts[rating - 1]++;
   }
 
+  const dayCount = computeWorkshopDayCount(row.start_date as string, row.end_date as string);
   const ageBuckets = computeAgeBuckets(accepted);
   const attendanceByTrack = computeTrackBreakdown(accepted);
   const overallRating = computeOverallRating(feedback);
@@ -100,7 +117,7 @@ export async function serializeWorkshop(row: Row) {
     trainer_notes: '',
     general_notes: '',
     recommendations: '',
-    participants: accepted.map(toWorkshopParticipant),
+    participants: accepted.map((p) => toWorkshopParticipant(p, dayCount)),
     photos: photos.map((p) => ({ id: p.filename, url: p.url, caption: undefined })),
     total_applications: participants.length,
     male_applications: applicationsSplit.male,
