@@ -10,7 +10,7 @@ import AttendanceTab from '../components/workshop-detail/AttendanceTab';
 import CertificatesTab from '../components/workshop-detail/CertificatesTab';
 import RatingsTab from '../components/workshop-detail/RatingsTab';
 import DocumentActionButton from '../components/workshop-detail/DocumentActionButton';
-import { downloadAllCertificatesZip } from '../utils/exportCertificate';
+import { downloadAllCertificatesZip, CertificateGenerationError } from '../utils/exportCertificate';
 import { previewParticipantGuidePdf } from '../utils/exportParticipantGuidePdf';
 import { downloadWorkshopReportPptx, ReportGenerationError } from '../utils/exportReportPptx';
 import { useNotifications } from '../state/NotificationsContext';
@@ -109,6 +109,7 @@ export default function WorkshopDetailPage({ workshop, onBack, onUpdateWorkshop,
   const { isAdmin } = useAuth();
   const [tab, setTab] = useState<DetailTabKey>('overview');
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [generatingCertificates, setGeneratingCertificates] = useState(false);
   const phase = getWorkshopPhase(workshop);
   const color = typeColorByKey[workshop.workshop_type];
 
@@ -120,6 +121,17 @@ export default function WorkshopDetailPage({ workshop, onBack, onUpdateWorkshop,
 
   async function handleGenerateGuide() {
     await previewParticipantGuidePdf(workshop);
+  }
+
+  async function handleDownloadCertificates() {
+    setGeneratingCertificates(true);
+    try {
+      await downloadAllCertificatesZip(workshop);
+    } catch (err) {
+      addNotification(err instanceof CertificateGenerationError ? err.message : 'تعذّر إصدار الشهادات، حاول مرة أخرى.');
+    } finally {
+      setGeneratingCertificates(false);
+    }
   }
 
   async function handleDownloadReport() {
@@ -149,11 +161,12 @@ export default function WorkshopDetailPage({ workshop, onBack, onUpdateWorkshop,
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => downloadAllCertificatesZip(workshop)}
-              className="flex items-center gap-2 rounded-[10px] bg-male px-4 py-2 text-sm font-semibold text-[#06131c]"
+              onClick={handleDownloadCertificates}
+              disabled={generatingCertificates}
+              className="flex items-center gap-2 rounded-[10px] bg-male px-4 py-2 text-sm font-semibold text-[#06131c] disabled:opacity-60"
             >
               <Award size={16} />
-              إصدار الشهادات
+              {generatingCertificates ? 'جارٍ الإصدار...' : 'إصدار الشهادات'}
             </button>
             {isAdmin && (
               <button

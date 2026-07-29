@@ -155,12 +155,10 @@ export interface ReportContent {
     responses_received: number;
     total_attendance: number;
     response_rate: string;
-    // The org's fixed 8-question survey (backend/src/entities/feedback.ts) is no longer a
-    // uniform ممتاز/محايد/ضعيف set groupable into 3 axes — it's 5 independent 1-5 ratings, 2
-    // yes/no/partial questions, and 1 open count. Represented directly rather than forced into
-    // the old 3-axis poor/neutral/excellent shape (see buildReportPptx.ts docblock for what this
-    // means for slide 8's fixed "التقييم حسب المحاور الرئيسية" layout, which was built around
-    // that old shape and is a pending design question, not yet re-wired).
+    // The org's fixed 8-question survey (backend/src/entities/feedback.ts) is 5 independent 1-5
+    // ratings, 2 yes/no/partial questions, and 1 open count — represented directly rather than
+    // bucketed into categories. Slide 8's "التقييم حسب المحاور الرئيسية" star-rating chart
+    // (buildReportPptx.ts's chart4) renders these 5 averages directly, in this exact order.
     numeric_ratings: { question: string; average: number | null; responses: number }[];
     yes_no_breakdown: { question: string; options: { label: string; count: number; percent: number }[] }[];
     average_professional_connections: number | null;
@@ -172,12 +170,6 @@ export interface ReportContent {
     // `comments`/`suggestions`) — real respondent text, kept verbatim (see module docblock).
     key_feedback: string[];
     suggestions: string[];
-    // Slide 8's per-question poor/neutral/excellent grid — trainer_quality/content_quality only
-    // (see poorNeutralExcellent() above for why there's no "organization" entry).
-    question_breakdown: {
-      trainer: { poor: number; neutral: number; excellent: number } | null;
-      content: { poor: number; neutral: number; excellent: number } | null;
-    };
   };
 }
 
@@ -296,21 +288,6 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
     return feedbackRows.map((r) => r[field] as number | null).filter((v): v is number => typeof v === 'number');
   }
 
-  // Slide 8's "التقييم حسب المحاور الرئيسية" grid was built around the OLD survey's 3-option
-  // ممتاز/محايد/ضعيف answers per sub-question — reused here by bucketing the new 1-5 scale scores
-  // into the same 3 buckets (1-2 poor, 3 neutral, 4-5 excellent) for the one column each of
-  // trainer_quality/content_quality cleanly maps to (see pptxEdits.ts docblock — the grid's 3rd,
-  // "تقييم تنظيم الورشة" column has no matching survey question and is left empty).
-  function poorNeutralExcellent(field: string): { poor: number; neutral: number; excellent: number } | null {
-    const scores = numericScores(field);
-    if (scores.length === 0) return null;
-    const poor = scores.filter((s) => s <= 2).length;
-    const neutral = scores.filter((s) => s === 3).length;
-    const excellent = scores.filter((s) => s >= 4).length;
-    const pct = (n: number) => Math.round((n / scores.length) * 100);
-    return { poor: pct(poor), neutral: pct(neutral), excellent: pct(excellent) };
-  }
-
   const numericRatings = NUMERIC_QUESTIONS.map((q) => {
     const scores = numericScores(q.field);
     return { question: outputLanguage === 'ar' ? q.label_ar : q.label_en, average: average(scores), responses: scores.length };
@@ -351,7 +328,10 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
   const totalAccepted = workshop.total_accepted as number;
 
   const responsesReceived = feedbackRows.length;
-  const responseRatePct = totalAttendance === 0 ? null : Math.round((responsesReceived / totalAttendance) * 100);
+  // Clamped at 100 — a respondent can submit feedback without their attendance having been
+  // recorded yet, which would otherwise push this past 100% (e.g. 10 responses vs. 3 recorded
+  // attendees), a nonsensical rate to display.
+  const responseRatePct = totalAttendance === 0 ? null : Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100);
   const responseRate = responsesReceived === 0 ? 'N/A' : responseRatePct === null ? 'N/A' : `${responseRatePct}%`;
 
   const targetAudienceTraits: string[] = [];
@@ -436,10 +416,6 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
             : `Overall, trainees rated the workshop very positively, with ${/^[aeiou]/i.test(overallLabelEn) ? 'an' : 'a'} ${overallLabelEn.toLowerCase()} overall satisfaction score reflecting strong appreciation for the trainer's delivery and the course content.`,
       key_feedback: keyFeedback,
       suggestions: suggestionsList,
-      question_breakdown: {
-        trainer: poorNeutralExcellent('trainer_quality'),
-        content: poorNeutralExcellent('content_quality'),
-      },
     },
   };
 

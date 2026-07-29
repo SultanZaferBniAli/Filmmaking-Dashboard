@@ -47,8 +47,8 @@ export default function AttendanceTab({ workshop, onUpdateWorkshop }: Props) {
     try {
       await onUpdateWorkshop({ ...workshop, participants: draft });
       addNotification(`تم حفظ حضور المشاركين لورشة "${workshop.workshop_name}" وتحديث الإحصائيات`);
-    } catch {
-      setError('تعذّر حفظ الحضور. تأكد من تشغيل الخادم الخلفي (backend) ثم أعد المحاولة.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'تعذّر حفظ الحضور. تأكد من تشغيل الخادم الخلفي (backend) ثم أعد المحاولة.');
     } finally {
       setSaving(false);
     }

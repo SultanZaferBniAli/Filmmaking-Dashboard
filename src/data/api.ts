@@ -70,7 +70,10 @@ export async function saveWorkshopAttendance(workshopId: string, participantAtte
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ participantAttendance }),
   });
-  if (!res.ok) throw new Error(`PATCH /workshops/${workshopId}/attendance failed with ${res.status}`);
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+    throw new Error(errBody?.error?.message ?? `PATCH /workshops/${workshopId}/attendance failed with ${res.status}`);
+  }
   return res.json() as Promise<Workshop>;
 }
 

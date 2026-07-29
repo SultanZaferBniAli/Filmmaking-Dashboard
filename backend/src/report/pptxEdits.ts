@@ -135,39 +135,15 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
   { slide: 8, shapeName: 'Text 150', replaceWith: '({satisfaction.label})' },
 ];
 
-// Slide 8's "التقييم حسب المحاور الرئيسية" section was built for the OLD 8-question
-// ممتاز/محايد/ضعيف survey: 3 static, unchangeable column titles ("تقييم مقدم الورشة" / "تقييم
-// محتوى الورشة" / "تقييم تنظيم الورشة"), each with up to 3 stacked sub-question rows, each row
-// rendered as 3 percentage values (poor/neutral/excellent). The org's current survey
-// (backend/src/entities/feedback.ts) has no exact equivalent, but trainer_quality/content_quality
-// map cleanly onto the first two columns once bucketed into the same 3 buckets (see
-// reportContent.ts's poorNeutralExcellent()) — there is no "organization" question at all, so
-// that 3rd column is intentionally left with no bars (confirmed with the org rather than guessed).
-//
-// Each row's 3 ids/label below were verified against the template's real <a:off> coordinates
-// (resolving every ancestor <p:grpSp> transform) — grouped by column in document order (trainer,
-// content, organization), each column's rows top-to-bottom. Only row 1 of trainer/content is ever
-// filled (1 real bucketed question each); every other row in all 3 columns is deleted outright.
-export type QuestionBarTriplet = { poorId: string; neutralId: string; excellentId: string };
-export type QuestionBarRow = { bars: QuestionBarTriplet; label: string };
-
-export const SLIDE8_TRAINER_ROWS: QuestionBarRow[] = [
-  { bars: { poorId: '2106', neutralId: '2109', excellentId: '2115' }, label: 'TextBox 2224' },
-  { bars: { poorId: '2257', neutralId: '2258', excellentId: '2261' }, label: 'TextBox 2225' },
-  { bars: { poorId: '2267', neutralId: '2268', excellentId: '2271' }, label: 'TextBox 2226' },
-];
-
-export const SLIDE8_CONTENT_ROWS: QuestionBarRow[] = [
-  { bars: { poorId: '2277', neutralId: '2278', excellentId: '2281' }, label: 'TextBox 2281' },
-  { bars: { poorId: '2290', neutralId: '2291', excellentId: '2294' }, label: 'TextBox 2282' },
-  { bars: { poorId: '2300', neutralId: '2301', excellentId: '2304' }, label: 'TextBox 2283' },
-];
-
-export const SLIDE8_ORGANIZATION_ROWS: QuestionBarRow[] = [
-  { bars: { poorId: '2310', neutralId: '2311', excellentId: '2314' }, label: 'TextBox 2314' },
-  { bars: { poorId: '2323', neutralId: '2324', excellentId: '2327' }, label: 'TextBox 2315' },
-  { bars: { poorId: '2333', neutralId: '2334', excellentId: '2337' }, label: 'TextBox 2316' },
-];
+// slide8 "التقييم حسب المحاور الرئيسية" row score labels ("X/5") — five static text shapes the
+// template ships with a literal "5/5" in every row, entirely unwired to the star-rating chart
+// next to them (chart4 in buildReportPptx.ts). Listed top-to-bottom in the same order as the row
+// question text (and as NUMERIC_QUESTIONS/numeric_ratings in reportContent.ts) — unlike chart4's
+// own values, these do NOT need reversing, since they're plain top-to-bottom shapes, not a
+// bottom-up chart category axis. Filled in code (not via SHAPE_TEXT_REPLACEMENTS' generic
+// docxtemplater tag) because a null average needs its own short label — "N/A/5" overflows the
+// shape's fixed-width box and wraps onto two lines.
+export const SLIDE8_RATING_SCORE_LABELS = ['TextBox 106', 'TextBox 107', 'TextBox 109', 'TextBox 110', 'TextBox 111'];
 
 // Fixed-count "numbered box" groups: each slot is (title shape name, badge shape name | null).
 // At render time, slots beyond the real data length have BOTH shapes deleted outright (not just

@@ -16,6 +16,7 @@ import { registerFileRoutes } from './routes/files.js';
 import { registerWorkshopDocumentRoutes } from './routes/workshopDocuments.js';
 import { registerAdminRoutes } from './routes/admin.js';
 import { registerReportRoutes } from './routes/report.js';
+import { registerCertificateRoutes } from './routes/certificate.js';
 import { registerParticipantsExportRoutes } from './routes/participantsExport.js';
 import { registerWorkshopExportRoutes } from './routes/workshopExport.js';
 import { registerTrainerExportRoutes } from './routes/trainerExport.js';
@@ -50,6 +51,7 @@ export function buildServer() {
   // app.addHook inside registerAdminRoutes) only applies to admin.ts's routes, not siblings.
   app.register(async (adminApp) => registerAdminRoutes(adminApp));
   registerReportRoutes(app);
+  registerCertificateRoutes(app);
   registerParticipantsExportRoutes(app);
   registerWorkshopExportRoutes(app);
   registerTrainerExportRoutes(app);

@@ -13,138 +13,13 @@ import {
   AXES_SLIDE6,
   KEY_FEEDBACK_ANCHORS,
   SUGGESTIONS_ANCHORS,
-  SLIDE8_TRAINER_ROWS,
-  SLIDE8_CONTENT_ROWS,
-  SLIDE8_ORGANIZATION_ROWS,
+  SLIDE8_RATING_SCORE_LABELS,
   type NumberedBoxSlot,
-  type QuestionBarRow,
 } from './pptxEdits.js';
+import { setShapeText, replaceRunInShape, deleteShapeByName, deleteShapeContainingText, setShapeTextByAnchor, escapeXml } from './pptxXml.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = path.join(__dirname, '..', '..', 'templates', 'workshop-report-template.pptx');
-
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function findShapeBlock(xml: string, shapeName: string): { start: number; end: number; block: string } | null {
-  const namePattern = new RegExp(`<p:sp>(?:(?!</p:sp>)[\\s\\S])*?name="${escapeRegExp(shapeName)}"[\\s\\S]*?</p:sp>`);
-  const m = namePattern.exec(xml);
-  if (!m) return null;
-  return { start: m.index, end: m.index + m[0].length, block: m[0] };
-}
-
-// Slide 8's per-sub-question "poor/neutral/excellent" mini bar-charts live inside 9 repeated
-// grouped shapes that all share the same shape *names* ("Text 134" etc. appear 9 times each) —
-// only each shape's <p:cNvPr id="…"> is unique, resolved once via the group transform math (see
-// conversation history) and hardcoded per-id in pptxEdits.ts's SLIDE8_QUESTION_BARS.
-function findShapeBlockById(xml: string, shapeId: string): { start: number; end: number; block: string } | null {
-  const idPattern = new RegExp(`<p:sp>(?:(?!</p:sp>)[\\s\\S])*?id="${escapeRegExp(shapeId)}"[\\s\\S]*?</p:sp>`);
-  const m = idPattern.exec(xml);
-  if (!m) return null;
-  return { start: m.index, end: m.index + m[0].length, block: m[0] };
-}
-
-// Collapses every <a:t> run inside the shape down to a single run carrying `newText`, blanking
-// the rest — used both for "one tag replaces a whole multi-run sentence" (the headline) and for
-// simple single-value shapes, so surrounding template prose never leaks into the rendered output.
-function setShapeText(xml: string, shapeName: string, newText: string): string {
-  const found = findShapeBlock(xml, shapeName);
-  if (!found) return xml;
-  let seenFirst = false;
-  const newBlock = found.block.replace(/<a:t>([\s\S]*?)<\/a:t>/g, () => {
-    if (!seenFirst) {
-      seenFirst = true;
-      return `<a:t>${newText}</a:t>`;
-    }
-    return `<a:t></a:t>`;
-  });
-  return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
-}
-
-// Replaces just ONE specific run's text within a named shape, leaving every sibling run
-// (e.g. a "اناث"/"ذكور" label sharing the same shape as its "#" count run) untouched — unlike
-// setShapeText, which intentionally blanks every other run.
-function replaceRunInShape(xml: string, shapeName: string, oldRunText: string, newRunText: string): string {
-  const found = findShapeBlock(xml, shapeName);
-  if (!found) {
-    // eslint-disable-next-line no-console
-    console.warn(`[report] replaceRunInShape: shape "${shapeName}" not found — no-op`);
-    return xml;
-  }
-  const runPattern = new RegExp(`<a:t>${escapeRegExp(oldRunText)}</a:t>`);
-  if (!runPattern.test(found.block)) {
-    // A silent miss here (e.g. a curly vs. straight quote mismatch) leaves the original
-    // template text in place with no error — surfaced loudly so it's caught in testing, not
-    // discovered later in a downloaded file.
-    // eslint-disable-next-line no-console
-    console.warn(`[report] replaceRunInShape: run text not found in shape "${shapeName}" — expected exact text: ${JSON.stringify(oldRunText)}`);
-    return xml;
-  }
-  const newBlock = found.block.replace(runPattern, `<a:t>${newRunText}</a:t>`);
-  return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
-}
-
-function deleteShapeByName(xml: string, shapeName: string): string {
-  const found = findShapeBlock(xml, shapeName);
-  if (!found) return xml;
-  return xml.slice(0, found.start) + xml.slice(found.end);
-}
-
-function deleteShapeById(xml: string, shapeId: string): string {
-  const found = findShapeBlockById(xml, shapeId);
-  if (!found) return xml;
-  return xml.slice(0, found.start) + xml.slice(found.end);
-}
-
-// Same "collapse every run down to one" behavior as setShapeText, but resolved by <p:cNvPr id>
-// instead of name — needed for slide 8's poor/neutral/excellent value boxes, which all share the
-// generic name "Text 134" (see pptxEdits.ts).
-function setShapeTextById(xml: string, shapeId: string, newText: string): string {
-  const found = findShapeBlockById(xml, shapeId);
-  if (!found) return xml;
-  let seenFirst = false;
-  const newBlock = found.block.replace(/<a:t>([\s\S]*?)<\/a:t>/g, () => {
-    if (!seenFirst) {
-      seenFirst = true;
-      return `<a:t>${newText}</a:t>`;
-    }
-    return `<a:t></a:t>`;
-  });
-  return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
-}
-
-function findShapeBlockContainingText(xml: string, anchorText: string): { start: number; end: number; block: string } | null {
-  const pattern = new RegExp(`<p:sp>(?:(?!</p:sp>)[\\s\\S])*?${escapeRegExp(anchorText)}[\\s\\S]*?</p:sp>`);
-  const m = pattern.exec(xml);
-  if (!m) return null;
-  return { start: m.index, end: m.index + m[0].length, block: m[0] };
-}
-
-function deleteShapeContainingText(xml: string, anchorText: string): string {
-  const found = findShapeBlockContainingText(xml, anchorText);
-  if (!found) return xml;
-  return xml.slice(0, found.start) + xml.slice(found.end);
-}
-
-// Same "collapse every run down to one" behavior as setShapeText, but the shape is located by the
-// literal placeholder text it currently contains rather than by shape name — needed for the
-// "أهم الملاحظات"/"أهم المقترحات" slots, which repeat the same shape *name* across slots 3-5.
-// Real respondent free text (unlike every other setShapeText caller, which only ever inserts a
-// docxtemplater {tag}) can contain XML-unsafe characters, so it's escaped here.
-function setShapeTextByAnchor(xml: string, anchorText: string, newText: string): string {
-  const found = findShapeBlockContainingText(xml, anchorText);
-  if (!found) return xml;
-  let seenFirst = false;
-  const newBlock = found.block.replace(/<a:t>([\s\S]*?)<\/a:t>/g, () => {
-    if (!seenFirst) {
-      seenFirst = true;
-      return `<a:t>${escapeXml(newText)}</a:t>`;
-    }
-    return `<a:t></a:t>`;
-  });
-  return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
-}
 
 // Fills as many anchor-text slots as real data provides (in order) and deletes the rest — the
 // same "Stage-2 code deletes unused boxes" behavior as fillNumberedBoxes, just keyed by anchor
@@ -177,29 +52,8 @@ function fillNumberedBoxes(xml: string, slots: NumberedBoxSlot[], count: number,
   return out;
 }
 
-// Slide 8's per-question poor/neutral/excellent column (see pptxEdits.ts docblock above
-// SLIDE8_TRAINER_ROWS): fills row 1 with the real bucketed percentages when data exists, and
-// always deletes every other row (there's only ever 1 real sub-question per column now, not the
-// template's original up-to-3) — a `null` breakdown (no data source, e.g. the organization
-// column) deletes the whole column, row 1 included.
-function fillQuestionBreakdownColumn(xml: string, rows: QuestionBarRow[], breakdown: { poor: number; neutral: number; excellent: number } | null): string {
-  let out = xml;
-  rows.forEach((row, i) => {
-    if (i === 0 && breakdown) {
-      out = setShapeTextById(out, row.bars.poorId, String(breakdown.poor));
-      out = setShapeTextById(out, row.bars.neutralId, String(breakdown.neutral));
-      out = setShapeTextById(out, row.bars.excellentId, String(breakdown.excellent));
-    } else {
-      out = deleteShapeById(out, row.bars.poorId);
-      out = deleteShapeById(out, row.bars.neutralId);
-      out = deleteShapeById(out, row.bars.excellentId);
-      out = deleteShapeByName(out, row.label);
-    }
-  });
-  return out;
-}
-
-// --- native chart value updates (chart1.xml / chart2.xml = age doughnuts, chart3.xml = by_experience bar) ---
+// --- native chart value updates (chart1.xml / chart2.xml = age doughnuts, chart3.xml = by_experience
+// bar, chart4.xml / chart5.xml = star-rating bars, chart6.xml = response-rate doughnut) ---
 
 function setDoughnutValues(xml: string, values: number[]): string {
   const numCacheMatch = /<c:val>[\s\S]*?<c:numCache>([\s\S]*?)<\/c:numCache>[\s\S]*?<\/c:val>/.exec(xml);
@@ -210,6 +64,23 @@ function setDoughnutValues(xml: string, values: number[]): string {
     cache = cache.replace(ptPattern, `$1${v}$2`);
   });
   return xml.replace(numCacheMatch[1], cache);
+}
+
+// chart4/chart5's star-rating bars are PowerPoint's picture-fill trick: series 0 ("5 Stars") is a
+// fixed grey 5-star background image stretched to a constant value of 5, and series 1 ("Rating")
+// is a gold star image stretched to the real score out of 5, drawn on top — so only series 1's
+// (the second <c:val>...</c:val> block's) cached points need updating; series 0 stays at 5.
+function setStarRatingValues(xml: string, values: number[]): string {
+  const valBlocks = [...xml.matchAll(/<c:val>[\s\S]*?<\/c:val>/g)];
+  if (valBlocks.length < 2) return xml;
+  const ratingBlock = valBlocks[1];
+  let updated = ratingBlock[0];
+  values.forEach((v, i) => {
+    const ptPattern = new RegExp(`(<c:pt idx="${i}">\\s*<c:v>)[^<]*(</c:v>\\s*</c:pt>)`);
+    updated = updated.replace(ptPattern, `$1${v}$2`);
+  });
+  const start = ratingBlock.index as number;
+  return xml.slice(0, start) + updated + xml.slice(start + ratingBlock[0].length);
 }
 
 // Rebuilds the bar chart's category/value point lists to match however many real entries exist
@@ -226,10 +97,6 @@ function setBarChartSeries(xml: string, entries: { label: string; count: number 
     return `${pre}${entries.length}${post}${valPts}${close}`;
   });
   return out;
-}
-
-function escapeXml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 // docxtemplater's core parser does NOT resolve dotted paths against a nested object by default
@@ -286,10 +153,12 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
     if (slideNum === 8) {
       xml = fillAnchorTextSlots(xml, KEY_FEEDBACK_ANCHORS, content.satisfaction.key_feedback);
       xml = fillAnchorTextSlots(xml, SUGGESTIONS_ANCHORS, content.satisfaction.suggestions);
-      // "التقييم حسب المحاور الرئيسية" sub-question grid — see pptxEdits.ts docblock.
-      xml = fillQuestionBreakdownColumn(xml, SLIDE8_TRAINER_ROWS, content.satisfaction.question_breakdown.trainer);
-      xml = fillQuestionBreakdownColumn(xml, SLIDE8_CONTENT_ROWS, content.satisfaction.question_breakdown.content);
-      xml = fillQuestionBreakdownColumn(xml, SLIDE8_ORGANIZATION_ROWS, null);
+      // The shape's fixed-width box only ever fit the template's own 3-character sample ("5/5") —
+      // a decimal ("4.4/5") or "لا يوجد" both overflow onto a second line, so this rounds to a
+      // whole star count and uses a bare dash for "no responses" instead.
+      content.satisfaction.numeric_ratings.forEach((r, i) => {
+        xml = setShapeText(xml as string, SLIDE8_RATING_SCORE_LABELS[i], r.average !== null ? `${Math.round(r.average)}/5` : '-');
+      });
     }
 
     for (const rep of SHAPE_TEXT_REPLACEMENTS) {
@@ -334,6 +203,38 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
 
   const chart3 = renderedZip.file('ppt/charts/chart3.xml')?.asText();
   if (chart3) renderedZip.file('ppt/charts/chart3.xml', setBarChartSeries(chart3, content.statistics.by_experience));
+
+  // chart4 = slide8's "التقييم حسب المحاور الرئيسية" 5-question star-rating grid. Its category
+  // axis is hidden (<c:delete val="1"/> in the template) — the row question text ("ما مستوى رضاك
+  // العام…", etc.) is a set of separate static shapes laid out top-to-bottom in normal reading
+  // order, NOT the chart's own axis labels. But PowerPoint's default rendering for a horizontal
+  // ("bar"-direction) chart plots category idx0 at the BOTTOM row and idx(n-1) at the TOP —
+  // verified against the template's own bundled sample data (4.3/3.2/1.8/1.2/5 renders as a clean
+  // 5/1/2/3/4-star top-to-bottom pattern, only consistent with a bottom-up axis). So the values
+  // must be reversed here to land on the correct row: numeric_ratings[0] (overall_rating, meant
+  // for the TOP row) has to go in idx4, not idx0.
+  const chart4 = renderedZip.file('ppt/charts/chart4.xml')?.asText();
+  if (chart4) {
+    const ratings = content.satisfaction.numeric_ratings.map((r) => r.average ?? 0).reverse();
+    renderedZip.file('ppt/charts/chart4.xml', setStarRatingValues(chart4, ratings));
+  }
+
+  // chart5 = the single "إجمالي التقييم العام" summary star bar, mirroring the same
+  // satisfaction.overall_rating shown as text elsewhere on slide8 (Text 79).
+  const chart5 = renderedZip.file('ppt/charts/chart5.xml')?.asText();
+  if (chart5) renderedZip.file('ppt/charts/chart5.xml', setStarRatingValues(chart5, [content.satisfaction.overall_rating]));
+
+  // chart6 = slide8's "المشاركات المستلمة مقارنة بعدد الحضور" response-rate doughnut (formatted
+  // as 0%): idx0 is the filled/colored slice, idx1 is the remainder — mirrors the rounded
+  // satisfaction.response_rate text (Text 97) rather than recomputing an unrounded fraction, so
+  // the doughnut and the "%" label next to it always agree.
+  const chart6 = renderedZip.file('ppt/charts/chart6.xml')?.asText();
+  if (chart6) {
+    const totalAttendance = content.satisfaction.total_attendance;
+    const responsesReceived = content.satisfaction.responses_received;
+    const filledPct = totalAttendance > 0 ? Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100) : 0;
+    renderedZip.file('ppt/charts/chart6.xml', setDoughnutValues(chart6, [filledPct / 100, 1 - filledPct / 100]));
+  }
 
   return renderedZip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
