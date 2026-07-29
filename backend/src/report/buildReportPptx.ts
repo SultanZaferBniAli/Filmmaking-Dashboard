@@ -154,10 +154,13 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
       xml = fillAnchorTextSlots(xml, KEY_FEEDBACK_ANCHORS, content.satisfaction.key_feedback);
       xml = fillAnchorTextSlots(xml, SUGGESTIONS_ANCHORS, content.satisfaction.suggestions);
       // The shape's fixed-width box only ever fit the template's own 3-character sample ("5/5") —
-      // a decimal ("4.4/5") or "لا يوجد" both overflow onto a second line, so this rounds to a
-      // whole star count and uses a bare dash for "no responses" instead.
+      // "لا يوجد" overflows onto a second line, so "no responses" gets a bare dash instead. Ratings
+      // that are all close together (e.g. 4.0-4.4) round to the same whole star and become visually
+      // indistinguishable, so this shows the real 1-decimal average (already at most 3 characters,
+      // e.g. "4.4") rather than rounding it away — dropping the "/5" suffix keeps it the same width
+      // as the template's own sample text.
       content.satisfaction.numeric_ratings.forEach((r, i) => {
-        xml = setShapeText(xml as string, SLIDE8_RATING_SCORE_LABELS[i], r.average !== null ? `${Math.round(r.average)}/5` : '-');
+        xml = setShapeText(xml as string, SLIDE8_RATING_SCORE_LABELS[i], r.average !== null ? `${r.average}` : '-');
       });
     }
 
