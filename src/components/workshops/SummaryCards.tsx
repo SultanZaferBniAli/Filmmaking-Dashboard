@@ -33,9 +33,10 @@ function SummaryCard({ card }: { card: SummaryCardDef }) {
         </span>
       </div>
 
+      <span className="mt-5 w-full truncate text-right text-sm font-semibold tracking-wide text-white/70">{card.label}</span>
+
       <div className="mt-auto flex w-full flex-col items-start text-right">
-        <span className="w-full truncate text-right text-sm font-semibold tracking-wide text-white/70">{card.label}</span>
-        <span className="mt-2 w-full text-right text-[38px] font-bold leading-none text-white">{card.value}</span>
+        <span className="w-full text-right text-[38px] font-bold leading-none text-white">{card.value}</span>
         {/* Default flex-start packing = right-aligned under dir="rtl": sublabel (first child)
             sits rightmost, the dot (second child) sits just to its left. */}
         <div className="mt-1.5 flex w-full items-center gap-1.5">
