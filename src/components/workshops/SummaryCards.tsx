@@ -15,7 +15,7 @@ function SummaryCard({ card }: { card: SummaryCardDef }) {
   return (
     <div
       dir="rtl"
-      className="relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-surface p-5 text-right shadow-[0_8px_32px_0px_rgba(0,0,0,0.4)]"
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-surface p-5 text-right shadow-[0_8px_32px_0px_rgba(0,0,0,0.4)]"
       style={{ direction: 'rtl', textAlign: 'right' }}
     >
       <div
@@ -33,7 +33,7 @@ function SummaryCard({ card }: { card: SummaryCardDef }) {
         </span>
       </div>
 
-      <div className="mt-5 flex w-full flex-col items-start text-right">
+      <div className="mt-auto flex w-full flex-col items-start text-right">
         <span className="w-full truncate text-right text-sm font-semibold tracking-wide text-white/70">{card.label}</span>
         <span className="mt-2 w-full text-right text-[38px] font-bold leading-none text-white">{card.value}</span>
         {/* Default flex-start packing = right-aligned under dir="rtl": sublabel (first child)
