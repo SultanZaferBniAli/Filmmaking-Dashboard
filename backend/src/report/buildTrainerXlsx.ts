@@ -11,8 +11,9 @@ const TEMPLATE_PATH = path.join(__dirname, '..', '..', 'templates', 'workshop-ex
 // dark-navy/orange/gold fills, borders — the same visual identity as every other export in this
 // app) since there's no dedicated trainer template. All 4 sheets are replaced with trainer-shaped
 // content: one info-card sheet (same layout as buildWorkshopXlsx.ts's Sheet1) and three data-table
-// sheets (same zebra-striped cell styles as its Sheet3, but without the Excel Table wrapper — see
-// buildAllWorkshopsXlsx.ts for why that's safe to drop).
+// sheets (same zebra-striped cell styles as its Sheet3, but without the Excel Table wrapper — none
+// of the visual styling depends on the Table object, it's all plain cell styles plus worksheet-
+// level conditional formatting, so the Table is safe to omit).
 
 export interface TrainerInfoRow {
   label: string;

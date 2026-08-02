@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { zodToApiError } from '../errors.js';
 import { buildWorkshopXlsx, type WorkshopExportPayload } from '../report/buildWorkshopXlsx.js';
-import { buildAllWorkshopsXlsx, type AllWorkshopsExportPayload } from '../report/buildAllWorkshopsXlsx.js';
+import { buildWholeWorkshopXlsx, type WholeWorkshopExportPayload } from '../report/buildWholeWorkshopXlsx.js';
 
 const genderCountSchema = z.object({ male: z.number(), female: z.number() });
 
@@ -44,7 +44,7 @@ const allBodySchema = z.object({
       }),
     )
     .min(1),
-}) satisfies z.ZodType<AllWorkshopsExportPayload>;
+}) satisfies z.ZodType<WholeWorkshopExportPayload>;
 
 export function registerWorkshopExportRoutes(app: FastifyInstance) {
   app.post('/export/workshop-xlsx', async (req, reply) => {
@@ -62,7 +62,7 @@ export function registerWorkshopExportRoutes(app: FastifyInstance) {
     const parsed = allBodySchema.safeParse(req.body);
     if (!parsed.success) throw zodToApiError(parsed.error);
 
-    const buffer = await buildAllWorkshopsXlsx(parsed.data);
+    const buffer = await buildWholeWorkshopXlsx(parsed.data);
 
     const today = new Date().toISOString().slice(0, 10);
     reply.header('Content-Disposition', `attachment; filename="workshops-export-${today}.xlsx"`);
