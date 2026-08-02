@@ -264,7 +264,19 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
   const regionCounts = new Map<string, number>();
   for (const p of accepted) {
     const code = (p.region_code as string | null) ?? null;
-    const label = code ? (outputLanguage === 'ar' ? (p.city as string | null) ?? code : (REGION_NAME_EN[code] ?? code)) : outputLanguage === 'ar' ? 'غير محدد' : 'Unspecified';
+    const city = (p.city as string | null) ?? null;
+    // region_code is null whenever the participant's own city text didn't map to a known region
+    // (normalize.ts's normalizeCityToRegion) — that city text is still real and worth showing
+    // over the generic "Unspecified" fallback, which only applies when city itself is blank too.
+    const label = code
+      ? outputLanguage === 'ar'
+        ? (city ?? code)
+        : (REGION_NAME_EN[code] ?? code)
+      : city
+        ? city
+        : outputLanguage === 'ar'
+          ? 'غير محدد'
+          : 'Unspecified';
     regionCounts.set(label, (regionCounts.get(label) ?? 0) + 1);
   }
   const byRegion = [...regionCounts.entries()].map(([region, count]) => ({ region, count })).sort((a, b) => b.count - a.count);
