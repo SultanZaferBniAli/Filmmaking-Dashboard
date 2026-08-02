@@ -16,7 +16,7 @@ export async function downloadWorkshopReportPptx(workshop: Workshop): Promise<vo
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${workshop.workshop_id}-report.pptx`;
+  link.download = `${workshop.workshop_name.replace(/[\\/:*?"<>|]/g, ' ').trim() || workshop.workshop_id}.pptx`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

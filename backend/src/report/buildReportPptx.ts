@@ -14,6 +14,7 @@ import {
   KEY_FEEDBACK_ANCHORS,
   SUGGESTIONS_ANCHORS,
   SLIDE8_RATING_SCORE_LABELS,
+  YES_NO_PERCENT_SLOTS,
   type NumberedBoxSlot,
 } from './pptxEdits.js';
 import { setShapeText, replaceRunInShape, deleteShapeByName, deleteShapeContainingText, setShapeTextByAnchor, escapeXml } from './pptxXml.js';
@@ -162,6 +163,14 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
       content.satisfaction.numeric_ratings.forEach((r, i) => {
         xml = setShapeText(xml as string, SLIDE8_RATING_SCORE_LABELS[i], r.average !== null ? `${r.average}` : '-');
       });
+
+      // yes/no/partial breakdown bars: yes_no_breakdown is in YES_NO_QUESTIONS order
+      // (reportContent.ts) — [0] gained_knowledge, [1] intends_to_apply.
+      const yesNoByField = { gained_knowledge: content.satisfaction.yes_no_breakdown[0], intends_to_apply: content.satisfaction.yes_no_breakdown[1] };
+      for (const slot of YES_NO_PERCENT_SLOTS) {
+        const percent = yesNoByField[slot.field]?.options.find((o) => o.label === slot.option)?.percent ?? 0;
+        xml = setShapeText(xml as string, slot.shapeName, `${percent}%`);
+      }
     }
 
     for (const rep of SHAPE_TEXT_REPLACEMENTS) {
@@ -251,6 +260,14 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
       renderedZip.file(`ppt/charts/${chartFile}`, setStarRatingValues(xml, [content.satisfaction.overall_rating]));
     }
   }
+
+  // slide4 ships its own copy of the same 1-category star-rating bar (chart7.xml, added alongside
+  // Text 77/79/80 in the "إجمالي التقييم العام" widget the user duplicated from slide8 onto slide4
+  // — see templates/workshop-report-template.pptx and pptxEdits.ts's Text 79 entry for slide 4).
+  // It's a genuinely separate chart PART (not just another graphicFrame pointing at chart6) so its
+  // own embedded-workbook cache needs updating independently of slide8's copy.
+  const chart7 = renderedZip.file('ppt/charts/chart7.xml')?.asText();
+  if (chart7) renderedZip.file('ppt/charts/chart7.xml', setStarRatingValues(chart7, [content.satisfaction.overall_rating]));
 
   return renderedZip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 }

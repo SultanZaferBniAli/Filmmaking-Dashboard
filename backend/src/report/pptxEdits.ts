@@ -133,6 +133,24 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
   { slide: 8, shapeName: 'Text 79', replaceWith: '{satisfaction.overall_rating}' },
   { slide: 8, shapeName: 'Text 151', replaceWith: '{satisfaction.percentage}' },
   { slide: 8, shapeName: 'Text 150', replaceWith: '({satisfaction.label})' },
+
+  // slide4's own copy of the "إجمالي التقييم العام" star-rating widget (added alongside chart7 in
+  // buildReportPptx.ts — see its docblock for why this is a distinct chart part from slide8's).
+  { slide: 4, shapeName: 'Text 79', replaceWith: '{satisfaction.overall_rating}' },
+];
+
+// slide8 "هل تنوي تطبيق..." / "هل اكتسبت معرفة..." yes/no/partial breakdown — 3 fixed option slots
+// per question (matching backend/src/entities/feedback.ts's YES_NO_MAYBE / YES_NO_PARTIAL enums),
+// each pairing a static option-label shape with the percentage shape directly below it. Filled in
+// code (not via SHAPE_TEXT_REPLACEMENTS/docxtemplater) because the percent has to be looked up by
+// matching option label against satisfaction.yes_no_breakdown, not read off a fixed dot-path.
+export const YES_NO_PERCENT_SLOTS: { field: 'gained_knowledge' | 'intends_to_apply'; option: string; shapeName: string }[] = [
+  { field: 'gained_knowledge', option: 'لا', shapeName: 'TextBox 2332' },
+  { field: 'gained_knowledge', option: 'نعم جزئياً', shapeName: 'TextBox 2331' },
+  { field: 'gained_knowledge', option: 'نعم', shapeName: 'TextBox 2330' },
+  { field: 'intends_to_apply', option: 'لا', shapeName: 'TextBox 2329' },
+  { field: 'intends_to_apply', option: 'ربما', shapeName: 'TextBox 2328' },
+  { field: 'intends_to_apply', option: 'نعم', shapeName: 'TextBox 2327' },
 ];
 
 // slide8 "التقييم حسب المحاور الرئيسية" row score labels ("X/5") — five static text shapes the
