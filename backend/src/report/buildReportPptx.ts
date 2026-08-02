@@ -269,5 +269,19 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
   const chart7 = renderedZip.file('ppt/charts/chart7.xml')?.asText();
   if (chart7) renderedZip.file('ppt/charts/chart7.xml', setStarRatingValues(chart7, [content.satisfaction.overall_rating]));
 
+  // --- 4. drop every chart's link to its embedded workbook, now that every chart's cache holds
+  // the real values written above. Each chart's <c:externalData> only ever pointed PowerPoint at
+  // its own embedded Excel sheet for a manual "Edit Data" refresh — removing it (rather than just
+  // leaving autoUpdate="0") means there is no longer any linked source for a stale re-sync to pull
+  // from, even if a future PowerPoint save/reimport tries. The embeddings themselves are left in
+  // the zip (now-orphaned relationships are harmless) rather than also editing every chart's own
+  // _rels file to drop the reference.
+  for (let i = 1; i <= 7; i++) {
+    const chartPath = `ppt/charts/chart${i}.xml`;
+    const xml = renderedZip.file(chartPath)?.asText();
+    if (xml === undefined) continue;
+    renderedZip.file(chartPath, xml.replace(/<c:externalData[^>]*>[\s\S]*?<\/c:externalData>/, ''));
+  }
+
   return renderedZip.generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 }

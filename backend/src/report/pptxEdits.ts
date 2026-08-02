@@ -95,6 +95,15 @@ export const TYPE_DATE_CITY_CARD: ShapeReplacement[] = [
   { slide: 6, shapeName: 'Rectangle 21', replaceWith: '{detailed_report.workshop_info.course_type}' },
   { slide: 6, shapeName: 'Google Shape;528;p4', replaceWith: '{detailed_report.workshop_info.date}' },
   { slide: 6, shapeName: 'Rectangle 45', replaceWith: '{detailed_report.workshop_info.city_district}' },
+
+  // slide4's SECOND, separate "تفاصيل الورشة" card (a compact icon+value strip, distinct from the
+  // "دورة تدريبية" card above — its background is "Rectangle: Rounded Corners 19", title group is
+  // "Group 1052") — TextBox 104/1044/1045 ship with the field NAME itself as placeholder text
+  // (المدينة/التاريخ/الموقع) rather than a bracket placeholder, so they read as static labels at a
+  // glance, but they're meant to be overwritten with the value exactly like Rectangle 21/45 above.
+  { slide: 4, shapeName: 'TextBox 104', replaceWith: '{detailed_report.workshop_info.city_district}' },
+  { slide: 4, shapeName: 'TextBox 1044', replaceWith: '{executive_summary.details.date}' },
+  { slide: 4, shapeName: 'TextBox 1045', replaceWith: '{executive_summary.details.course_type}' },
 ];
 
 // Position/shape-name-targeted replacements for placeholders whose literal text repeats
@@ -115,7 +124,7 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
 
   // slide7 by_region box: the ONE "(المدينة)" + "#" pair (single-region template slot — see
   // buildReportPptx.ts for the "multiple regions" fallback behavior)
-  { slide: 7, shapeName: 'TextBox 614', replaceWith: '{__by_region_label}     {__by_region_count}\t' },
+  { slide: 7, shapeName: 'TextBox 614', replaceWith: '{__by_region_label} {__by_region_count}' },
 
   // slide7 gender counts — verified by nearest-Y match to their (separate-shape) أنثى/ذكور labels
   { slide: 7, shapeName: 'Rectangle 626', replaceWith: '{statistics.gender.female}' },
@@ -132,7 +141,6 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
   { slide: 8, shapeName: 'Text 97', replaceWith: '{satisfaction.response_rate}' },
   { slide: 8, shapeName: 'Text 79', replaceWith: '{satisfaction.overall_rating}' },
   { slide: 8, shapeName: 'Text 151', replaceWith: '{satisfaction.percentage}' },
-  { slide: 8, shapeName: 'Text 150', replaceWith: '({satisfaction.label})' },
 
   // slide4's own copy of the "إجمالي التقييم العام" star-rating widget (added alongside chart7 in
   // buildReportPptx.ts — see its docblock for why this is a distinct chart part from slide8's).
