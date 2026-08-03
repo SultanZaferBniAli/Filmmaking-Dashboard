@@ -140,7 +140,8 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
   { slide: 8, shapeName: 'Text 86', replaceWith: '{satisfaction.total_attendance}' },
   { slide: 8, shapeName: 'Text 97', replaceWith: '{satisfaction.response_rate}' },
   { slide: 8, shapeName: 'Text 79', replaceWith: '{satisfaction.overall_rating}' },
-  { slide: 8, shapeName: 'Text 151', replaceWith: '{satisfaction.percentage}' },
+  // (Text 151, the "100%" check-badge percentage, was removed from the template to match Report
+  // Template v.2 — its whole group (check icon + circle) is gone, so there's nothing to fill here.)
 
   // slide4's own copy of the "إجمالي التقييم العام" star-rating widget (added alongside chart7 in
   // buildReportPptx.ts — see its docblock for why this is a distinct chart part from slide8's).

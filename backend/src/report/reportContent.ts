@@ -2,7 +2,6 @@ import { workshopEntity, trainerEntity, participantEntity, feedbackEntity } from
 import { findRowById, findRowsByField } from '../store.js';
 import { serializeWorkshop } from '../serialize/workshop.js';
 import { computeTrackBreakdown } from '../serialize/reportAggregates.js';
-import { normalizeCityToRegion } from '../normalize.js';
 
 // Deterministic (non-LLM) post-workshop report content generator. Turns a workshop's real,
 // already-verified data into the report JSON consumed by buildReportPptx.ts. No API key / LLM
@@ -23,40 +22,6 @@ const NATIONALITY_NAME_EN: Record<string, string> = {
   KW: 'Kuwaiti',
   MA: 'Moroccan',
   LB: 'Lebanese',
-};
-
-const REGION_NAME_EN: Record<string, string> = {
-  riyadh: 'Riyadh',
-  makkah: 'Makkah',
-  madinah: 'Madinah',
-  eastern: 'Eastern Province',
-  qassim: 'Qassim',
-  hail: 'Hail',
-  tabuk: 'Tabuk',
-  'northern-borders': 'Northern Borders',
-  jazan: 'Jazan',
-  najran: 'Najran',
-  bahah: 'Al-Bahah',
-  jouf: 'Al-Jouf',
-  asir: 'Asir',
-};
-
-// Matches the frontend's own Arabic region names (src/data/workshops.ts regionMeta) — kept in
-// sync manually since the backend and frontend build separately and can't share a module.
-const REGION_NAME_AR: Record<string, string> = {
-  riyadh: 'منطقة الرياض',
-  makkah: 'منطقة مكة المكرمة',
-  eastern: 'المنطقة الشرقية',
-  madinah: 'منطقة المدينة المنورة',
-  qassim: 'منطقة القصيم',
-  asir: 'منطقة عسير',
-  tabuk: 'منطقة تبوك',
-  jazan: 'منطقة جازان',
-  hail: 'منطقة حائل',
-  najran: 'منطقة نجران',
-  jouf: 'منطقة الجوف',
-  bahah: 'منطقة الباحة',
-  'northern-borders': 'منطقة الحدود الشمالية',
 };
 
 const WORKSHOP_TYPE_LABEL_EN: Record<string, string> = {
@@ -280,25 +245,13 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
   ];
 
   // --- statistics: by_region / by_experience among the ACCEPTED population -----------------
+  // Group by the region/city EXACTLY AS ENTERED on each participant (raw `city` text), with no
+  // city→administrative-region normalization: the user asked slide 7 to show the same region they
+  // typed, never a canonical region name they never entered. Blank values fall back to "غير محدد".
   const regionCounts = new Map<string, number>();
   for (const p of accepted) {
-    const city = (p.city as string | null) ?? null;
-    // The stored region_code reflects whatever normalizeCityToRegion could resolve at IMPORT
-    // time — re-derived live here too (rather than trusting the stored value alone) so a
-    // CITY_TO_REGION lookup added after this participant was imported still applies without
-    // needing a data backfill. Only a genuinely unmapped city (typo, non-Saudi city, garbage
-    // data) falls through to the raw city text, then to "Unspecified".
-    const storedCode = (p.region_code as string | null) ?? null;
-    const code = storedCode ?? normalizeCityToRegion(city, null).region;
-    const label = code
-      ? outputLanguage === 'ar'
-        ? (REGION_NAME_AR[code] ?? city ?? code)
-        : (REGION_NAME_EN[code] ?? code)
-      : city
-        ? city
-        : outputLanguage === 'ar'
-          ? 'غير محدد'
-          : 'Unspecified';
+    const entered = (p.city as string | null)?.trim();
+    const label = entered && entered.length > 0 ? entered : outputLanguage === 'ar' ? 'غير محدد' : 'Unspecified';
     regionCounts.set(label, (regionCounts.get(label) ?? 0) + 1);
   }
   const byRegion = [...regionCounts.entries()].map(([region, count]) => ({ region, count })).sort((a, b) => b.count - a.count);
