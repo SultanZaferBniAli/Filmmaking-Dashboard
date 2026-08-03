@@ -11,29 +11,31 @@ import {
   RUN_TEXT_REPLACEMENTS,
   AXES_SLIDE4,
   AXES_SLIDE6,
-  KEY_FEEDBACK_ANCHORS,
-  SUGGESTIONS_ANCHORS,
+  QUOTE_SLOTS,
+  KEY_FEEDBACK_SLOTS,
+  SUGGESTIONS_SLOTS,
   SLIDE8_RATING_SCORE_LABELS,
   YES_NO_PERCENT_SLOTS,
   type NumberedBoxSlot,
+  type ShapeSlot,
 } from './pptxEdits.js';
-import { setShapeText, replaceRunInShape, deleteShapeByName, deleteShapeContainingText, setShapeTextByAnchor, escapeXml } from './pptxXml.js';
+import { setShapeText, replaceRunInShape, deleteShapeByName, setNthShapeText, deleteNthShapeByName, escapeXml } from './pptxXml.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = path.join(__dirname, '..', '..', 'templates', 'workshop-report-template.pptx');
 
-// Fills as many anchor-text slots as real data provides (in order) and deletes the rest — the
-// same "Stage-2 code deletes unused boxes" behavior as fillNumberedBoxes, just keyed by anchor
-// text instead of shape name.
-function fillAnchorTextSlots(xml: string, anchors: string[], items: string[]): string {
+// Fills a list-box group in order with real data, then deletes any unused trailing box. Each slot
+// addresses a specific occurrence of a shape name (v.3's suggestion boxes reuse "Text 73"), so
+// deletions run last and in reverse so earlier occurrences' indices stay valid while later ones are
+// removed.
+function fillShapeSlots(xml: string, slots: ShapeSlot[], items: string[]): string {
   let out = xml;
-  anchors.forEach((anchor, i) => {
-    if (i < items.length) {
-      out = setShapeTextByAnchor(out, anchor, items[i]);
-    } else {
-      out = deleteShapeContainingText(out, anchor);
-    }
+  slots.forEach((slot, i) => {
+    if (i < items.length) out = setNthShapeText(out, slot.shapeName, slot.nth, items[i]);
   });
+  for (let i = slots.length - 1; i >= 0; i--) {
+    if (i >= items.length) out = deleteNthShapeByName(out, slots[i].shapeName, slots[i].nth);
+  }
   return out;
 }
 
@@ -139,21 +141,16 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
 
     if (slideNum === 4) {
       xml = fillNumberedBoxes(xml, AXES_SLIDE4, content.executive_summary.axes.length, (i) => `{executive_summary.axes.${i}.title}`);
-      const quoteCount = content.executive_summary.participant_quotes.length;
-      // Quote boxes are handled by the same fill/delete rule as axes, but their tags are already
-      // registered as global bracket-placeholder replacements — only deletion for unused slots
-      // needs handling here.
-      const quoteAnchors = ['(الرأي الأول)', '(الرأي الثاني)', '(الرأي الثالث)'];
-      quoteAnchors.forEach((anchor, i) => {
-        if (i >= quoteCount) xml = deleteShapeContainingText(xml as string, anchor);
-      });
+      // slide4 "آراء المشاركين" quote boxes: fill with real comments, delete any unused box (so an
+      // under-supplied workshop doesn't show a bare "N/A" tag) — same rule as the slide8 lists.
+      xml = fillShapeSlots(xml, QUOTE_SLOTS, content.executive_summary.participant_quotes);
     }
     if (slideNum === 6) {
       xml = fillNumberedBoxes(xml, AXES_SLIDE6, content.detailed_report.axes.length, (i) => `{detailed_report.axes.${i}.title}`);
     }
     if (slideNum === 8) {
-      xml = fillAnchorTextSlots(xml, KEY_FEEDBACK_ANCHORS, content.satisfaction.key_feedback);
-      xml = fillAnchorTextSlots(xml, SUGGESTIONS_ANCHORS, content.satisfaction.suggestions);
+      xml = fillShapeSlots(xml, KEY_FEEDBACK_SLOTS, content.satisfaction.key_feedback);
+      xml = fillShapeSlots(xml, SUGGESTIONS_SLOTS, content.satisfaction.suggestions);
       // The shape's fixed-width box only ever fit the template's own 3-character sample ("5/5") —
       // "لا يوجد" overflows onto a second line, so "no responses" gets a bare dash instead. Ratings
       // that are all close together (e.g. 4.0-4.4) round to the same whole star and become visually
@@ -203,71 +200,64 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
   doc.render(renderData);
   const renderedZip = doc.getZip();
 
-  // --- 3. native chart data (age doughnuts + by_experience bar) --------------------------------
+  // --- 3. native chart data ------------------------------------------------------------------
+  // Chart XML part NUMBERS are NOT stable identifiers — any PowerPoint re-save of the template can
+  // reshuffle which chartN.xml backs which widget (verified: v.3 assigns entirely different numbers
+  // than the previous revision). So instead of hardcoding filenames, each chart part is classified
+  // by (a) the slide that references it — read from that slide's rels — and (b) its own chart type,
+  // then filled by ROLE. The seven roles across this deck:
+  //   • age doughnut (slides 4 & 7)                → age distribution of the fully-attended cohort
+  //   • by-experience bar (slide 7)                → statistics.by_experience
+  //   • response-rate doughnut (slide 8)           → responses received / total attendance
+  //   • 5-category star grid (slide 8)             → the five numeric_ratings
+  //   • 1-category star bar (slides 4 & 8)         → overall_rating
   const ageValues = content.executive_summary.overview.age_distribution.map((a) => a.count);
-  const statsAgeValues = content.statistics.by_age.map((a) => a.count);
+  const totalAttendance = content.satisfaction.total_attendance;
+  const responsesReceived = content.satisfaction.responses_received;
+  const responseFilledPct = totalAttendance > 0 ? Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100) : 0;
 
-  const chart1 = renderedZip.file('ppt/charts/chart1.xml')?.asText();
-  if (chart1) renderedZip.file('ppt/charts/chart1.xml', setDoughnutValues(chart1, ageValues));
-
-  const chart2 = renderedZip.file('ppt/charts/chart2.xml')?.asText();
-  if (chart2) renderedZip.file('ppt/charts/chart2.xml', setDoughnutValues(chart2, statsAgeValues));
-
-  const chart3 = renderedZip.file('ppt/charts/chart3.xml')?.asText();
-  if (chart3) renderedZip.file('ppt/charts/chart3.xml', setBarChartSeries(chart3, content.statistics.by_experience));
-
-  // Slide 8 ships 3 native charts for its rating/response-rate section: a 5-category star-rating
-  // grid ("التقييم حسب المحاور الرئيسية"), a 1-category star-rating bar ("إجمالي التقييم العام"),
-  // and a response-rate doughnut ("المشاركات المستلمة مقارنة بعدد الحضور"). Their XML part NUMBERS
-  // (chart4.xml/chart5.xml/chart6.xml) are NOT stable identifiers — a plain re-save in PowerPoint
-  // (e.g. after nudging a shape) reassigned which number backed the single-bar chart vs the
-  // doughnut between two revisions of the same template, with no visible change on the slide. So
-  // each part is identified here by its actual chart type + category count instead of by filename.
-  for (const chartFile of ['chart4.xml', 'chart5.xml', 'chart6.xml']) {
-    const xml = renderedZip.file(`ppt/charts/${chartFile}`)?.asText();
-    if (xml === undefined) continue;
-
-    if (/<c:doughnutChart>/.test(xml)) {
-      // idx0 is the filled/colored slice, idx1 is the remainder — mirrors the rounded
-      // satisfaction.response_rate text (Text 97) rather than recomputing an unrounded fraction,
-      // so the doughnut and the "%" label next to it always agree.
-      const totalAttendance = content.satisfaction.total_attendance;
-      const responsesReceived = content.satisfaction.responses_received;
-      const filledPct = totalAttendance > 0 ? Math.min(Math.round((responsesReceived / totalAttendance) * 100), 100) : 0;
-      renderedZip.file(`ppt/charts/${chartFile}`, setDoughnutValues(xml, [filledPct / 100, 1 - filledPct / 100]));
-      continue;
-    }
-
-    const catCountMatch = /<c:cat>[\s\S]*?<c:ptCount val="(\d+)"/.exec(xml);
-    const catCount = catCountMatch ? Number(catCountMatch[1]) : 0;
-
-    if (catCount === 5) {
-      // The 5-question grid's category axis is hidden (<c:delete val="1"/> in the template) — the
-      // row question text ("ما مستوى رضاك العام…", etc.) is a set of separate static shapes laid
-      // out top-to-bottom in normal reading order, NOT the chart's own axis labels. But
-      // PowerPoint's default rendering for a horizontal ("bar"-direction) chart plots category
-      // idx0 at the BOTTOM row and idx(n-1) at the TOP — verified against the template's own
-      // bundled sample data (4.3/3.2/1.8/1.2/5 renders as a clean 5/1/2/3/4-star top-to-bottom
-      // pattern, only consistent with a bottom-up axis) and re-confirmed with fully distinct
-      // synthetic values (1/2/3/4/5) landing on their exact matching row. So the values must be
-      // reversed here to land on the correct row: numeric_ratings[0] (overall_rating, meant for
-      // the TOP row) has to go in idx4, not idx0.
-      const ratings = content.satisfaction.numeric_ratings.map((r) => r.average ?? 0).reverse();
-      renderedZip.file(`ppt/charts/${chartFile}`, setStarRatingValues(xml, ratings));
-    } else {
-      // The single "إجمالي التقييم العام" summary star bar, mirroring the same
-      // satisfaction.overall_rating shown as text elsewhere on slide8 (Text 79).
-      renderedZip.file(`ppt/charts/${chartFile}`, setStarRatingValues(xml, [content.satisfaction.overall_rating]));
-    }
+  // Map each chart part (chartN.xml) to the slide number that references it.
+  const chartToSlide = new Map<string, number>();
+  for (let slideNum = 1; slideNum <= 30; slideNum++) {
+    const rels = renderedZip.file(`ppt/slides/_rels/slide${slideNum}.xml.rels`)?.asText();
+    if (!rels) continue;
+    for (const m of rels.matchAll(/charts\/(chart\d+\.xml)/g)) chartToSlide.set(m[1], slideNum);
   }
 
-  // slide4 ships its own copy of the same 1-category star-rating bar (chart7.xml, added alongside
-  // Text 77/79/80 in the "إجمالي التقييم العام" widget the user duplicated from slide8 onto slide4
-  // — see templates/workshop-report-template.pptx and pptxEdits.ts's Text 79 entry for slide 4).
-  // It's a genuinely separate chart PART (not just another graphicFrame pointing at chart6) so its
-  // own embedded-workbook cache needs updating independently of slide8's copy.
-  const chart7 = renderedZip.file('ppt/charts/chart7.xml')?.asText();
-  if (chart7) renderedZip.file('ppt/charts/chart7.xml', setStarRatingValues(chart7, [content.satisfaction.overall_rating]));
+  for (const [chartFile, slideNum] of chartToSlide) {
+    const xml = renderedZip.file(`ppt/charts/${chartFile}`)?.asText();
+    if (xml === undefined) continue;
+    let updated = xml;
+
+    if (/<c:doughnutChart>/.test(xml)) {
+      if (slideNum === 8) {
+        // Response-rate doughnut: idx0 filled slice, idx1 remainder — mirrors the rounded
+        // satisfaction.response_rate text so the doughnut and its "%" label always agree.
+        updated = setDoughnutValues(xml, [responseFilledPct / 100, 1 - responseFilledPct / 100]);
+      } else {
+        // Age doughnut (slide 4 or 7) — both show the same attended-cohort age buckets.
+        updated = setDoughnutValues(xml, ageValues);
+      }
+    } else if (/5 Stars|<c:v>Rating<\/c:v>/.test(xml)) {
+      const catCountMatch = /<c:cat>[\s\S]*?<c:ptCount val="(\d+)"/.exec(xml);
+      const catCount = catCountMatch ? Number(catCountMatch[1]) : 0;
+      if (catCount === 5) {
+        // The 5-question grid renders category idx0 at the BOTTOM row and idx(n-1) at the TOP, so
+        // the ratings (top-to-bottom: overall, trainer, content, skill, confidence) are reversed to
+        // land on their matching rows.
+        const ratings = content.satisfaction.numeric_ratings.map((r) => r.average ?? 0).reverse();
+        updated = setStarRatingValues(xml, ratings);
+      } else {
+        // Single "إجمالي التقييم العام" summary star bar (a copy sits on both slide 4 and slide 8).
+        updated = setStarRatingValues(xml, [content.satisfaction.overall_rating]);
+      }
+    } else {
+      // The only remaining native chart is the "عدد الحضور بحسب الخبرة في المجال" bar (slide 7).
+      updated = setBarChartSeries(xml, content.statistics.by_experience);
+    }
+
+    renderedZip.file(`ppt/charts/${chartFile}`, updated);
+  }
 
   // --- 4. drop every chart's link to its embedded workbook, now that every chart's cache holds
   // the real values written above. Each chart's <c:externalData> only ever pointed PowerPoint at
@@ -276,8 +266,8 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
   // from, even if a future PowerPoint save/reimport tries. The embeddings themselves are left in
   // the zip (now-orphaned relationships are harmless) rather than also editing every chart's own
   // _rels file to drop the reference.
-  for (let i = 1; i <= 7; i++) {
-    const chartPath = `ppt/charts/chart${i}.xml`;
+  for (const chartPath of Object.keys(renderedZip.files)) {
+    if (!/^ppt\/charts\/chart\d+\.xml$/.test(chartPath)) continue;
     const xml = renderedZip.file(chartPath)?.asText();
     if (xml === undefined) continue;
     renderedZip.file(chartPath, xml.replace(/<c:externalData[^>]*>[\s\S]*?<\/c:externalData>/, ''));

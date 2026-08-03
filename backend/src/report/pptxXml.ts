@@ -64,6 +64,47 @@ export function deleteShapeByName(xml: string, shapeName: string): string {
   return xml.slice(0, found.start) + xml.slice(found.end);
 }
 
+// Locates the Nth (0-based) <p:sp> whose own cNvPr carries name="shapeName" — needed where a shape
+// name legitimately repeats on one slide (e.g. slide8's three identically-named "Text 73" suggestion
+// boxes), so a slot can target a specific occurrence rather than always the first.
+export function findNthShapeBlock(xml: string, shapeName: string, nth: number): { start: number; end: number; block: string } | null {
+  const spRe = /<p:sp>[\s\S]*?<\/p:sp>/g;
+  const needle = `name="${shapeName}"`;
+  let m: RegExpExecArray | null;
+  let seen = 0;
+  while ((m = spRe.exec(xml)) !== null) {
+    if (m[0].includes(needle)) {
+      if (seen === nth) return { start: m.index, end: m.index + m[0].length, block: m[0] };
+      seen++;
+    }
+  }
+  return null;
+}
+
+function collapseRunsTo(block: string, newText: string): string {
+  let seenFirst = false;
+  return block.replace(/<a:t>([\s\S]*?)<\/a:t>/g, () => {
+    if (!seenFirst) {
+      seenFirst = true;
+      return `<a:t>${escapeXml(newText)}</a:t>`;
+    }
+    return `<a:t></a:t>`;
+  });
+}
+
+export function setNthShapeText(xml: string, shapeName: string, nth: number, newText: string): string {
+  const found = findNthShapeBlock(xml, shapeName, nth);
+  if (!found) return xml;
+  const newBlock = collapseRunsTo(found.block, newText);
+  return xml.slice(0, found.start) + newBlock + xml.slice(found.end);
+}
+
+export function deleteNthShapeByName(xml: string, shapeName: string, nth: number): string {
+  const found = findNthShapeBlock(xml, shapeName, nth);
+  if (!found) return xml;
+  return xml.slice(0, found.start) + xml.slice(found.end);
+}
+
 export function findShapeBlockContainingText(xml: string, anchorText: string): { start: number; end: number; block: string } | null {
   const pattern = new RegExp(`<p:sp>(?:(?!</p:sp>)[\\s\\S])*?${escapeRegExp(anchorText)}[\\s\\S]*?</p:sp>`);
   const m = pattern.exec(xml);

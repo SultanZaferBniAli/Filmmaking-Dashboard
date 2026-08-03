@@ -1,7 +1,8 @@
 import { workshopEntity, trainerEntity, participantEntity, feedbackEntity } from '../entities/index.js';
 import { findRowById, findRowsByField } from '../store.js';
 import { serializeWorkshop } from '../serialize/workshop.js';
-import { computeTrackBreakdown } from '../serialize/reportAggregates.js';
+import { computeTrackBreakdown, computeAgeBuckets } from '../serialize/reportAggregates.js';
+import type { Row } from '../entities/index.js';
 
 // Deterministic (non-LLM) post-workshop report content generator. Turns a workshop's real,
 // already-verified data into the report JSON consumed by buildReportPptx.ts. No API key / LLM
@@ -236,12 +237,34 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
   const keyFeedback: string[] = rawComments.slice(0, 5);
   const suggestionsList: string[] = rawSuggestions.slice(0, 5);
 
-  const genderAccepted = { female: workshop.female_accepted as number, male: workshop.male_accepted as number };
+  // Gender + age breakdowns are computed over the participants who ATTENDED THE FULL WORKSHOP
+  // (100% attendance), NOT the accepted population — slides 4 & 7 both label these "عدد الحضور
+  // بحسب الجنس/العمر" (attendance by gender/age), so they must reflect who actually showed up for
+  // the whole workshop. "Full attendance" = attendance_percentage 100 when recorded, else
+  // sessions_attended === total_sessions.
+  function attendedFullWorkshop(p: Row): boolean {
+    const pct = p.attendance_percentage as number | null;
+    if (typeof pct === 'number') return pct >= 100;
+    const sessionsAttended = p.sessions_attended as number | null;
+    const totalSessions = p.total_sessions as number | null;
+    if (typeof sessionsAttended === 'number' && typeof totalSessions === 'number' && totalSessions > 0) {
+      return sessionsAttended >= totalSessions;
+    }
+    return false;
+  }
+  const fullyAttended = allParticipants.filter(attendedFullWorkshop);
 
+  const genderAttended = {
+    female: fullyAttended.filter((p) => p.gender === 'female').length,
+    male: fullyAttended.filter((p) => p.gender === 'male').length,
+  };
+
+  const ageAsOf = new Date(String(workshop.end_date) + 'T00:00:00Z');
+  const attendedAge = computeAgeBuckets(fullyAttended, Number.isNaN(ageAsOf.getTime()) ? new Date() : ageAsOf);
   const ageBuckets = [
-    { range: '18 - 24', count: workshop.age_18_24_count as number },
-    { range: '25 - 30', count: workshop.age_25_30_count as number },
-    { range: '30+', count: workshop.age_30_plus_count as number },
+    { range: '18 - 24', count: attendedAge.age_18_24_count },
+    { range: '25 - 30', count: attendedAge.age_25_30_count },
+    { range: '30+', count: attendedAge.age_30_plus_count },
   ];
 
   // --- statistics: by_region / by_experience among the ACCEPTED population -----------------
@@ -360,7 +383,7 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
         registered: totalApplications,
         accepted: totalAccepted,
         attended: totalAttendance,
-        gender: genderAccepted,
+        gender: genderAttended,
         age_distribution: ageBuckets,
       },
     },
@@ -379,7 +402,7 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
       target_audience_traits: existingTraits.length > 0 ? existingTraits : targetAudienceTraits,
     },
     statistics: {
-      gender: genderAccepted,
+      gender: genderAttended,
       by_region: byRegion,
       funnel: { received: totalApplications, accepted: totalAccepted, attended: totalAttendance },
       by_experience: byExperience,
