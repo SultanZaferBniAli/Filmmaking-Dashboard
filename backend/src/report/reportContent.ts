@@ -15,6 +15,30 @@ import type { Row } from '../entities/index.js';
 
 export type OutputLanguage = 'en' | 'ar';
 
+// English → Arabic place-name translation for the slide-7 "by region" label, so a city entered in
+// Latin script (e.g. "Riyadh") shows in Arabic on the Arabic report. This translates the SAME place
+// (Jeddah → جدة, never the administrative region "منطقة مكة المكرمة"); an already-Arabic or unknown
+// value is left exactly as entered. Keys are lowercased; covers the same spellings normalize.ts's
+// CITY_TO_REGION accepts. Also merges Latin/Arabic spellings of one place into a single Arabic group.
+const PLACE_EN_TO_AR: Record<string, string> = {
+  'riyadh': 'الرياض', 'riyad': 'الرياض', 'ride': 'الرياض', 'raiydh': 'الرياض', 'riyadh , saudi arabia': 'الرياض',
+  'jeddah': 'جدة', 'jedda': 'جدة', 'jiddah': 'جدة',
+  'makkah': 'مكة المكرمة', 'mecca': 'مكة المكرمة', 'taif': 'الطائف',
+  'medina': 'المدينة المنورة', 'medinah': 'المدينة المنورة', 'almadinah': 'المدينة المنورة', 'madani': 'المدينة المنورة',
+  'al madinah al munawwarah': 'المدينة المنورة', 'yanbu': 'ينبع',
+  'dammam': 'الدمام', 'khobar': 'الخبر', 'kobar': 'الخبر', 'qatif': 'القطيف', 'jubail': 'الجبيل', 'dhahran': 'الظهران',
+  'al hasa': 'الأحساء', 'al ahsa': 'الأحساء', 'hafer albatin': 'حفر الباطن',
+  'qassim': 'القصيم', 'alqassim': 'القصيم', 'buraydah': 'بريدة', 'buraidah': 'بريدة', 'almjmmah': 'المجمعة',
+  'hail': 'حائل', 'tabuk': 'تبوك', 'arar': 'عرعر', 'arras': 'عرعر',
+  'jazan': 'جازان', 'jizan': 'جازان', 'abu arish': 'أبو عريش',
+  'najran': 'نجران', 'bisha': 'بيشة', 'baha': 'الباحة', 'al baha': 'الباحة', 'al bahah': 'الباحة',
+  'sakaka': 'سكاكا', 'asir': 'عسير', 'abha': 'أبها', 'khamis mushayt': 'خميس مشيط', 'khamis mushait': 'خميس مشيط',
+};
+
+function toArabicPlace(city: string): string {
+  return PLACE_EN_TO_AR[city.trim().toLowerCase()] ?? city.trim();
+}
+
 const NATIONALITY_NAME_EN: Record<string, string> = {
   SA: 'Saudi',
   EG: 'Egyptian',
@@ -274,7 +298,9 @@ export async function generateReportContent(workshopId: string, outputLanguage: 
   const regionCounts = new Map<string, number>();
   for (const p of accepted) {
     const entered = (p.city as string | null)?.trim();
-    const label = entered && entered.length > 0 ? entered : outputLanguage === 'ar' ? 'غير محدد' : 'Unspecified';
+    let label: string;
+    if (!entered) label = outputLanguage === 'ar' ? 'غير محدد' : 'Unspecified';
+    else label = outputLanguage === 'ar' ? toArabicPlace(entered) : entered;
     regionCounts.set(label, (regionCounts.get(label) ?? 0) + 1);
   }
   const byRegion = [...regionCounts.entries()].map(([region, count]) => ({ region, count })).sort((a, b) => b.count - a.count);
