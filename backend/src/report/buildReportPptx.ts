@@ -24,6 +24,16 @@ import { setShapeText, replaceRunInShape, deleteShapeByName, setNthShapeText, de
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = path.join(__dirname, '..', '..', 'templates', 'workshop-report-template.pptx');
 
+// Builds the slide-7 region box's single line as "count␠␠␠name" (name on the right, count on the
+// left) in the right-to-left box. A Latin name (e.g. "Riyadh") is wrapped in Left-to-Right Marks
+// (U+200E) so it doesn't bidi-merge with the count into "28Riyadh"; an Arabic name is left bare (a
+// mark around RTL text absorbs the gap). Three em-spaces (U+2003) give a fixed, non-collapsing gap.
+function formatRegionDisplay(name: string, count: number): string {
+  const gap = '   ';
+  const label = /[A-Za-z]/.test(name) ? `‎${name}‎` : name;
+  return `${label}${gap}${count}`;
+}
+
 // Fills a list-box group in order with real data, then deletes any unused trailing box. Each slot
 // addresses a specific occurrence of a shape name (v.3's suggestion boxes reuse "Text 73"), so
 // deletions run last and in reverse so earlier occurrences' indices stay valid while later ones are
@@ -195,6 +205,7 @@ export async function buildReportPptx(content: ReportContent): Promise<Buffer> {
   flatten(content, '', renderData);
   renderData.__by_region_label = byRegionTop.region;
   renderData.__by_region_count = byRegionTop.count;
+  renderData.__by_region_display = formatRegionDisplay(byRegionTop.region, byRegionTop.count);
 
   const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, delimiters: { start: '{', end: '}' }, nullGetter: () => 'N/A' });
   doc.render(renderData);

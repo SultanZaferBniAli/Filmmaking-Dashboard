@@ -65,11 +65,10 @@ export const SHAPE_TEXT_REPLACEMENTS: ShapeReplacement[] = [
   { slide: 6, shapeName: 'Text 55', replaceWith: '{detailed_report.workshop_info.date}' },
   { slide: 6, shapeName: 'Text 62', replaceWith: '{detailed_report.workshop_info.target_attendance}' },
 
-  // slide7 by-region box (single-region slot; see buildReportPptx.ts's __by_region_* render keys).
-  // Label and count are separated by fixed-width em-spaces and wrapped in Left-to-Right Marks (U+200E)
-  // so a Latin region name (e.g. "Riyadh") can't bidi-merge with the
-  // number into "28Riyadh" — they always render as "count␠␠␠name" with a clear gap in the RTL box.
-  { slide: 7, shapeName: 'TextBox 614', replaceWith: '‎{__by_region_label}‎   {__by_region_count}' },
+  // slide7 by-region box: a single pre-formatted display string built in buildReportPptx
+  // (count + em-space gap + name, with a Left-to-Right Mark only around a Latin name so it can't
+  // bidi-merge with the count into "28Riyadh"; an Arabic name needs no mark).
+  { slide: 7, shapeName: 'TextBox 614', replaceWith: '{__by_region_display}' },
 
   // slide7 gender counts (fully-attended population — see reportContent.ts)
   { slide: 7, shapeName: 'Rectangle 626', replaceWith: '{statistics.gender.female}' },
